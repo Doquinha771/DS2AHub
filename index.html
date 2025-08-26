@@ -1,0 +1,777 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <title>DS2A Hub Refatorado</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Um hub central para organizar aulas, trabalhos e materiais do curso DS2A.">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        /* --- Variáveis de Tema (Raiz) --- */
+        :root {
+            --bg-start: #0D1117;
+            --bg-end: #010409;
+            --glass-bg: rgba(22, 27, 34, 0.6);
+            --glass-border: rgba(139, 148, 158, 0.2);
+            --accent-1: #58A6FF;
+            --accent-2: #1F6FEB;
+            --accent-gradient: linear-gradient(135deg, var(--accent-1), var(--accent-2));
+            --text-primary: #f0f6fc;
+            --text-secondary: #8b949e;
+            --success: #3FB950;
+            --warning: #D29922;
+            --danger: #F85149;
+            --card-shadow: 0 16px 40px rgba(0, 0, 0, 0.4);
+            --radius-lg: 12px; /* Reduzido */
+            --radius-md: 8px;  /* Reduzido */
+            --glass-blur: 16px;
+            --transition-speed: 0.4s;
+        }
+
+        /* --- Tema Claro --- */
+        body.light-theme {
+            --bg-start: #f7fafc;
+            --bg-end: #edf2f7;
+            --glass-bg: rgba(255, 255, 255, 0.7);
+            --glass-border: rgba(0, 0, 0, 0.08);
+            --text-primary: #1a202c;
+            --text-secondary: #4a5568;
+            --card-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+        }
+
+        /* --- Estilos Globais --- */
+        *, *::before, *::after {
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
+            margin: 0;
+            min-height: 100vh;
+            background: var(--bg-end);
+            display: flex;
+            justify-content: center;
+            padding: 20px 16px; /* Reduzido */
+            color: var(--text-primary);
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+            transition: background var(--transition-speed) ease-in-out;
+            overflow-x: hidden;
+            position: relative;
+        }
+
+        /* Fundo Aurora Animado */
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: 
+                radial-gradient(ellipse 40% 50% at 20% 30%, rgba(31, 111, 235, 0.15), transparent),
+                radial-gradient(ellipse 40% 50% at 80% 60%, rgba(191, 57, 161, 0.15), transparent);
+            z-index: -1;
+            animation: aurora-glow 20s linear infinite;
+        }
+
+        @keyframes aurora-glow {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* --- Estrutura Principal --- */
+        .app-container {
+            width: 100%;
+            max-width: 920px; /* Reduzido */
+        }
+
+        .header {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            justify-content: space-between;
+            gap: 16px;
+            margin-bottom: 20px; /* Reduzido */
+            animation: fadeInDown 0.7s 0.1s ease-out backwards;
+        }
+
+        @keyframes fadeInDown {
+            from { opacity: 0; transform: translateY(-20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        h1 {
+            margin: 0;
+            font-size: 1.7rem; /* Reduzido */
+            font-weight: 800;
+            background: var(--accent-gradient);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+            animation: gradient-move 4s ease-in-out infinite alternate;
+        }
+
+        @keyframes gradient-move {
+            0% { background-position: 0% 50%; }
+            100% { background-position: 100% 50%; }
+        }
+        
+        .header-controls {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        /* --- Navegação por Abas --- */
+        .tabs-nav {
+            background: var(--glass-bg);
+            border-radius: 999px;
+            padding: 6px;
+            display: flex;
+            gap: 8px;
+            align-items: center;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+            border: 1px solid var(--glass-border);
+            backdrop-filter: blur(var(--glass-blur));
+            -webkit-backdrop-filter: blur(var(--glass-blur));
+        }
+
+        .tab-btn {
+            padding: 8px 18px; /* Reduzido */
+            border: none;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 0.9rem; /* Reduzido */
+            color: var(--text-secondary);
+            border-radius: 999px;
+            background: transparent;
+            transition: all 0.3s ease;
+        }
+
+        .tab-btn:hover {
+            color: var(--text-primary);
+            background: rgba(255, 255, 255, 0.08);
+        }
+
+        .tab-btn.active {
+            color: #fff;
+            background: var(--accent-2);
+            box-shadow: 0 5px 20px rgba(31, 111, 235, 0.3);
+            transform: scale(1.05);
+        }
+
+        /* --- Botão de Tema --- */
+        .theme-toggle {
+            background: var(--glass-bg);
+            border: 1px solid var(--glass-border);
+            color: var(--text-primary);
+            width: 40px; /* Reduzido */
+            height: 40px; /* Reduzido */
+            border-radius: 50%;
+            cursor: pointer;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+            backdrop-filter: blur(6px);
+            -webkit-backdrop-filter: blur(6px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+        }
+
+        .theme-toggle:hover {
+            transform: translateY(-3px) scale(1.1);
+            background: var(--accent-1);
+            color: #010409;
+            box-shadow: 0 8px 25px rgba(88, 166, 255, 0.3);
+        }
+        
+        .theme-toggle svg {
+            width: 18px; /* Reduzido */
+            height: 18px; /* Reduzido */
+        }
+        
+        /* --- Aviso Principal --- */
+        .main-announcement {
+            background: linear-gradient(135deg, rgba(88, 166, 255, 0.1), rgba(31, 111, 235, 0.15));
+            border: 1px solid var(--glass-border);
+            border-radius: var(--radius-lg);
+            padding: 20px; /* Reduzido */
+            margin-bottom: 20px; /* Reduzido */
+            position: relative;
+            overflow: hidden;
+            animation: fadeInTab 0.6s 0.2s ease-out backwards;
+            transition: all 0.5s ease;
+        }
+        .main-announcement.hidden {
+            opacity: 0;
+            transform: scale(0.95);
+            height: 0;
+            padding-top: 0;
+            padding-bottom: 0;
+            margin-bottom: 0;
+            border: none;
+        }
+        .main-announcement h2 {
+            font-size: 1.2rem; /* Reduzido */
+            margin-bottom: 10px; /* Reduzido */
+            border: none;
+            padding-left: 0;
+        }
+        .main-announcement p {
+            margin: 0;
+            color: var(--text-secondary);
+            font-size: 0.95rem; /* Reduzido */
+        }
+        .close-announcement-btn {
+            position: absolute;
+            top: 12px;
+            right: 12px;
+            background: rgba(0,0,0,0.2);
+            border: none;
+            color: var(--text-primary);
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            cursor: pointer;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: background 0.2s;
+        }
+        .close-announcement-btn:hover {
+            background: rgba(0,0,0,0.4);
+        }
+
+        /* --- Conteúdo das Abas --- */
+        .tab-content {
+            display: none;
+            animation: fadeInTab 0.5s ease-out;
+        }
+        
+        .tab-content.active {
+            display: block;
+        }
+
+        .content-card {
+            background: var(--glass-bg);
+            border-radius: var(--radius-lg);
+            border: 1px solid var(--glass-border);
+            padding: 20px; /* Reduzido */
+            box-shadow: var(--card-shadow);
+            backdrop-filter: blur(var(--glass-blur));
+            -webkit-backdrop-filter: blur(var(--glass-blur));
+        }
+        
+        .tab-content > .content-card {
+             animation: fadeInTab 0.6s 0.2s ease-out backwards;
+        }
+
+        h2 {
+            margin-top: 0;
+            margin-bottom: 20px;
+            font-size: 1.2rem; /* Reduzido */
+            color: var(--text-primary);
+            font-weight: 700;
+        }
+
+        /* --- Calendário e Eventos --- */
+        .calendar {
+            padding: 14px; /* Reduzido */
+            border-radius: var(--radius-md);
+            background: rgba(0,0,0,0.1);
+        }
+        .calendar-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+        }
+        .calendar-header button {
+            width: 32px; /* Reduzido */
+            height: 32px; /* Reduzido */
+        }
+        .calendar-header span { font-weight: 700; font-size: 1rem; } /* Reduzido */
+        .calendar-grid {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 6px; /* Reduzido */
+        }
+        .calendar-day, .calendar-date {
+            text-align: center;
+            padding: 8px 4px; /* Reduzido */
+            border-radius: 6px; /* Reduzido */
+            font-size: 0.85rem; /* Reduzido */
+            position: relative;
+        }
+        .calendar-day { color: var(--text-secondary); font-weight: 600; }
+        .calendar-date {
+            cursor: pointer;
+            color: var(--text-primary);
+            transition: all 0.2s ease;
+        }
+        .calendar-date.other-month { color: var(--text-secondary); opacity: 0.5; }
+        .calendar-date:not(.other-month):hover { background: rgba(255,255,255,0.08); transform: scale(1.1); }
+        .calendar-date.today {
+            background: var(--accent-gradient);
+            color: #fff;
+            font-weight: 700;
+        }
+        .calendar-date.selected {
+            outline: 2px solid var(--accent-1);
+            outline-offset: 2px;
+        }
+        .calendar-date.has-events::after {
+            content: '';
+            position: absolute;
+            bottom: 4px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 4px; /* Reduzido */
+            height: 4px; /* Reduzido */
+            border-radius: 50%;
+            background-color: var(--accent-1);
+        }
+        #dailyEventsContainer {
+            margin-top: -10px; /* Ajustado */
+            margin-bottom: 20px; /* Reduzido */
+            padding: 18px; /* Reduzido */
+            background: rgba(0,0,0,0.1);
+            border-radius: 0 0 var(--radius-lg) var(--radius-lg);
+            transition: all 0.3s ease;
+        }
+        #dailyEventsContainer:empty {
+            padding: 0;
+            border: none;
+        }
+        .event-list { list-style: none; padding: 0; margin: 0; }
+        .event-item {
+            background: rgba(0,0,0,0.2);
+            padding: 10px; /* Reduzido */
+            border-radius: var(--radius-md);
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 10px; /* Reduzido */
+            animation: fadeIn 0.5s ease;
+        }
+        @keyframes fadeIn { from { opacity: 0; transform: translateX(-10px); } to { opacity: 1; transform: translateX(0); } }
+        .event-item:last-child { margin-bottom: 0; }
+        .event-type {
+            font-weight: 600;
+            font-size: 0.8rem; /* Reduzido */
+            padding: 4px 8px;
+            border-radius: 6px;
+            color: #010409;
+            flex-shrink: 0;
+        }
+        .event-type.prova { background: var(--danger); }
+        .event-type.trabalho { background: var(--warning); }
+        
+        /* --- Aulas do Dia --- */
+        #dailyLessonsContainer {
+            min-height: 100px;
+        }
+        .daily-lesson-card {
+            animation: fadeIn 0.5s ease;
+        }
+        .daily-lesson-card h3 {
+            margin: 0 0 16px 0;
+            font-size: 1.15rem; /* Reduzido */
+            color: var(--text-primary);
+        }
+        .daily-lesson-card ul {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); /* Reduzido */
+            gap: 10px; /* Reduzido */
+        }
+        .daily-lesson-card li {
+            background: rgba(0,0,0,0.15);
+            padding: 10px; /* Reduzido */
+            border-radius: 8px;
+            font-size: 0.9rem; /* Reduzido */
+            color: var(--text-secondary);
+            border-left: 3px solid var(--accent-1);
+        }
+        .no-lessons-message {
+            text-align: center;
+            padding: 20px;
+            color: var(--text-secondary);
+            font-style: italic;
+        }
+
+        /* --- Lista de Trabalhos e Materiais --- */
+        .list-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 16px;
+        }
+        .item-card {
+            background: rgba(0,0,0,0.15);
+            border-radius: var(--radius-md);
+            padding: 16px; /* Reduzido */
+            border: 1px solid transparent;
+            transition: all 0.25s ease;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+        .item-card:hover {
+            transform: translateY(-6px);
+            border-color: var(--accent-1);
+            box-shadow: 0 10px 30px rgba(88, 166, 255, 0.1);
+        }
+        .item-title {
+            font-weight: 600;
+            color: var(--text-primary);
+            font-size: 0.95rem; /* Reduzido */
+        }
+        .item-status {
+            font-size: 0.8rem; /* Reduzido */
+            font-weight: 600;
+            border-radius: 6px;
+            padding: 4px 10px;
+            align-self: flex-start;
+        }
+        .item-status.pending {
+            background: var(--warning);
+            color: #010409;
+            animation: pulse 1.5s infinite alternate;
+        }
+        .item-status.done {
+            background: var(--success);
+            color: #010409;
+        }
+        @keyframes pulse {
+            from { opacity: 1; }
+            to { opacity: 0.8; }
+        }
+        .material-card {
+            flex-direction: row;
+            align-items: center;
+            gap: 16px;
+        }
+        .material-icon {
+            font-size: 1.5rem; /* Reduzido */
+            background: var(--accent-gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        .material-desc {
+            color: var(--text-secondary);
+            font-size: 0.85rem; /* Reduzido */
+        }
+
+        /* --- Responsividade --- */
+        @media (max-width: 768px) {
+            body { padding: 20px 12px; }
+            h1 { font-size: 1.4rem; }
+            .header { flex-direction: column; align-items: flex-start; }
+            .tabs-nav { width: 100%; justify-content: space-around; }
+            .tab-btn { padding: 8px 12px; flex-grow: 1; text-align: center; }
+            .list-container { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body class="dark-theme">
+
+    <div class="app-container">
+        <header class="header">
+            <h1>DS2A Hub</h1>
+            <div class="header-controls">
+                <nav class="tabs-nav" role="tablist" aria-label="Navegação Principal">
+                    <button class="tab-btn active" onclick="showTab(0)">Aulas</button>
+                    <button class="tab-btn" onclick="showTab(1)">Trabalhos</button>
+                    <button class="tab-btn" onclick="showTab(2)">Materiais</button>
+                </nav>
+                <button class="theme-toggle" onclick="toggleTheme()" title="Alternar tema">
+                    <svg class="moon-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path fill-rule="evenodd" d="M9.528 1.718a.75.75 0 01.162.819A8.97 8.97 0 009 6a9 9 0 009 9 8.97 8.97 0 003.463-.69.75.75 0 01.981.98 10.503 10.503 0 01-9.694 6.46c-5.799 0-10.5-4.701-10.5-10.5 0-4.368 2.667-8.112 6.46-9.694a.75.75 0 01.818.162z" clip-rule="evenodd"></path></svg>
+                    <svg class="sun-icon" style="display:none;" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2.25a.75.75 0 01.75.75v2.25a.75.75 0 01-1.5 0V3a.75.75 0 01.75-.75zM7.5 12a4.5 4.5 0 119 0 4.5 4.5 0 01-9 0zM18.894 6.106a.75.75 0 010 1.06l-1.591 1.59a.75.75 0 11-1.06-1.06l1.59-1.59a.75.75 0 011.06 0zM21.75 12a.75.75 0 01-.75.75h-2.25a.75.75 0 010-1.5h2.25a.75.75 0 01.75.75zM17.836 17.836a.75.75 0 01-1.06 0l-1.59-1.591a.75.75 0 111.06-1.06l1.591 1.59a.75.75 0 010 1.06zM12 21a.75.75 0 01-.75-.75v-2.25a.75.75 0 011.5 0v2.25A.75.75 0 0112 21zM5.106 17.836a.75.75 0 010-1.06l1.591-1.59a.75.75 0 011.06 1.06l-1.59 1.59a.75.75 0 01-1.06 0zM3 12a.75.75 0 01.75-.75h2.25a.75.75 0 010 1.5H3.75A.75.75 0 013 12zM6.106 6.106a.75.75 0 011.06 0l1.59 1.591a.75.75 0 11-1.06 1.06l-1.59-1.59a.75.75 0 010-1.06z"></path></svg>
+                </button>
+            </div>
+        </header>
+
+        <div class="main-announcement" id="mainAnnouncement"></div>
+
+        <main>
+            <!-- Aba de Aulas -->
+            <section id="tab-content-0" class="tab-content active" role="tabpanel">
+                <div class="content-card">
+                    <div class="calendar-wrap">
+                        <div id="calendar" class="calendar"></div>
+                    </div>
+                    <div id="dailyEventsContainer"></div>
+                </div>
+                <div class="content-card">
+                    <h2>Aulas do Dia</h2>
+                    <div id="dailyLessonsContainer"></div>
+                </div>
+            </section>
+
+            <!-- Aba de Trabalhos -->
+            <section id="tab-content-1" class="tab-content">
+                <div class="content-card">
+                    <h2>Trabalhos Pendentes</h2>
+                    <div class="list-container" id="pendingAssignments"></div>
+                </div>
+                <div class="content-card" style="margin-top: 20px;">
+                    <h2>Trabalhos Concluídos</h2>
+                    <div class="list-container" id="doneAssignments"></div>
+                </div>
+            </section>
+
+            <!-- Aba de Materiais -->
+            <section id="tab-content-2" class="tab-content">
+                 <div class="content-card">
+                    <h2>Materiais de Apoio</h2>
+                    <div class="list-container" id="materialsContainer"></div>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // =================================================================================
+            //  1. CENTRAL DE DADOS - Edite aqui para atualizar o conteúdo do site
+            // =================================================================================
+            const appData = {
+                announcement: {
+                    title: "Atenção, turma!",
+                    message: "Quinta-feira será o dia mais corrido da semana! Preparem-se para a prova de Matemática e as entregas de Inglês e Processos."
+                },
+                lessons: {
+                    1: { day: "Segunda-feira", subjects: ["Geografia", "Química", "Inglês", "Física", "Carreira", "Carreira", "Carreira"] },
+                    2: { day: "Terça-feira", subjects: ["Português", "História", "Biologia", "Geografia", "Redes", "Redes", "Redes"] },
+                    3: { day: "Quarta-feira", subjects: ["Matemática", "Matemática", "Biologia", "Sociologia", "Processos", "Processos", "Processos"] },
+                    4: { day: "Quinta-feira", subjects: ["Matemática", "Inglês", "Ed. Física", "Lógica", "Lógica", "Matemática", "Português"] },
+                    5: { day: "Sexta-feira", subjects: ["Sociologia", "Lógica", "Lógica", "Física", "Português", "História", "Química"] }
+                },
+                assignments: [
+                    { title: "Inglês", status: 'pending' },
+                    { title: "Processos", status: 'pending' },
+                    { title: "Carreira", status: 'pending' },
+                    { title: "Física", status: 'done' }
+                ],
+                events: {
+                    '2025-08-28': [
+                        { type: 'Prova', title: 'Prova de Matemática' },
+                        { type: 'Trabalho', title: 'Entrega do Trabalho de Inglês' },
+                        { type: 'Trabalho', title: 'Entrega do Trabalho de Processos' }
+                    ]
+                },
+                materials: [
+                    { icon: '📄', title: "Currículo - Carreira", desc: "Aula de Carreira" },
+                    { icon: '🔗', title: "Atividades - Processos/Redes", desc: "Links de atividades" },
+                    { icon: '💻', title: "Atividades AVA", desc: "Plataforma online" }
+                ]
+            };
+
+            // =================================================================================
+            //  2. LÓGICA DA APLICAÇÃO
+            // =================================================================================
+            
+            const elements = {
+                tabButtons: document.querySelectorAll('.tab-btn'),
+                tabContents: document.querySelectorAll('.tab-content'),
+                themeToggleBtn: document.querySelector('.theme-toggle'),
+                sunIcon: document.querySelector('.sun-icon'),
+                moonIcon: document.querySelector('.moon-icon'),
+                calendarEl: document.getElementById('calendar'),
+                dailyEventsContainer: document.getElementById('dailyEventsContainer'),
+                dailyLessonsContainer: document.getElementById('dailyLessonsContainer'),
+                pendingAssignments: document.getElementById('pendingAssignments'),
+                doneAssignments: document.getElementById('doneAssignments'),
+                materialsContainer: document.getElementById('materialsContainer'),
+                announcementContainer: document.getElementById('mainAnnouncement'),
+            };
+
+            const state = {
+                today: new Date(),
+                selectedDate: new Date(),
+                currentMonth: new Date().getMonth(),
+                currentYear: new Date().getFullYear(),
+            };
+
+            // --- Lógica das Abas ---
+            window.showTab = (index) => {
+                elements.tabButtons.forEach((btn, i) => btn.classList.toggle('active', i === index));
+                elements.tabContents.forEach((content, i) => content.classList.toggle('active', i === index));
+            };
+
+            // --- Lógica do Tema ---
+            const applyTheme = (theme) => {
+                document.body.className = `${theme}-theme`;
+                elements.sunIcon.style.display = theme === 'light' ? 'block' : 'none';
+                elements.moonIcon.style.display = theme === 'dark' ? 'block' : 'none';
+                localStorage.setItem('theme', theme);
+            };
+            elements.themeToggleBtn.onclick = () => {
+                const newTheme = document.body.classList.contains('dark-theme') ? 'light' : 'dark';
+                applyTheme(newTheme);
+            };
+
+            // --- Funções de Renderização ---
+            const renderAnnouncement = () => {
+                const { title, message } = appData.announcement;
+                elements.announcementContainer.innerHTML = `
+                    <button class="close-announcement-btn" id="closeAnnouncementBtn" title="Fechar aviso">×</button>
+                    <h2>${title}</h2>
+                    <p>${message}</p>
+                `;
+                document.getElementById('closeAnnouncementBtn').addEventListener('click', () => {
+                    elements.announcementContainer.classList.add('hidden');
+                });
+            };
+
+            const renderLessonsForDate = (date) => {
+                const dayOfWeek = date.getDay();
+                const lessonData = appData.lessons[dayOfWeek];
+
+                if (lessonData) {
+                    const subjectListHtml = lessonData.subjects.map(s => `<li>${s}</li>`).join('');
+                    elements.dailyLessonsContainer.innerHTML = `
+                        <div class="daily-lesson-card">
+                            <h3>${lessonData.day}</h3>
+                            <ul>${subjectListHtml}</ul>
+                        </div>
+                    `;
+                } else {
+                    elements.dailyLessonsContainer.innerHTML = `
+                        <div class="daily-lesson-card no-lessons-message">
+                            <p>Sem aulas agendadas para hoje. Bom descanso!</p>
+                        </div>
+                    `;
+                }
+            };
+
+            const renderAssignments = () => {
+                elements.pendingAssignments.innerHTML = '';
+                elements.doneAssignments.innerHTML = '';
+                appData.assignments.forEach(assignment => {
+                    const card = document.createElement('div');
+                    card.className = 'item-card';
+                    card.innerHTML = `
+                        <span class="item-title">${assignment.title}</span>
+                        <span class="item-status ${assignment.status}">${assignment.status === 'pending' ? 'Pendente' : 'Concluído'}</span>
+                    `;
+                    (assignment.status === 'pending' ? elements.pendingAssignments : elements.doneAssignments).appendChild(card);
+                });
+            };
+
+            const renderMaterials = () => {
+                elements.materialsContainer.innerHTML = '';
+                appData.materials.forEach(material => {
+                    const card = document.createElement('div');
+                    card.className = 'item-card material-card';
+                    card.innerHTML = `
+                        <span class="material-icon">${material.icon}</span>
+                        <div>
+                            <div class="item-title">${material.title}</div>
+                            <div class="material-desc">${material.desc}</div>
+                        </div>
+                    `;
+                    elements.materialsContainer.appendChild(card);
+                });
+            };
+
+            const renderEventsForDate = (date) => {
+                const year = date.getFullYear();
+                const month = (date.getMonth() + 1).toString().padStart(2, '0');
+                const day = date.getDate().toString().padStart(2, '0');
+                const dateString = `${year}-${month}-${day}`;
+                
+                const events = appData.events[dateString];
+
+                if (events && events.length > 0) {
+                    const eventListHtml = events.map(event => `
+                        <li class="event-item">
+                            <span class="event-type ${event.type.toLowerCase()}">${event.type}</span>
+                            <span>${event.title}</span>
+                        </li>
+                    `).join('');
+                    elements.dailyEventsContainer.innerHTML = `<ul class="event-list">${eventListHtml}</ul>`;
+                } else {
+                    elements.dailyEventsContainer.innerHTML = '';
+                }
+            };
+
+            // --- Lógica do Calendário ---
+            const renderCalendar = (month, year) => {
+                elements.calendarEl.innerHTML = '';
+                const firstDay = new Date(year, month, 1);
+                const lastDay = new Date(year, month + 1, 0);
+                const monthNames = ['Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho', 'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro'];
+                const dayNames = ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb'];
+
+                const header = document.createElement('div');
+                header.className = 'calendar-header';
+                header.innerHTML = `<button>‹</button><span>${monthNames[month]} ${year}</span><button>›</button>`;
+                header.querySelector('button:first-child').onclick = () => changeMonth(-1);
+                header.querySelector('button:last-child').onclick = () => changeMonth(1);
+                elements.calendarEl.appendChild(header);
+
+                const grid = document.createElement('div');
+                grid.className = 'calendar-grid';
+                dayNames.forEach(day => grid.innerHTML += `<div class="calendar-day">${day}</div>`);
+
+                const startDayIndex = firstDay.getDay();
+                const prevLastDay = new Date(year, month, 0).getDate();
+                for (let i = startDayIndex; i > 0; i--) {
+                    grid.innerHTML += `<div class="calendar-date other-month">${prevLastDay - i + 1}</div>`;
+                }
+
+                for (let d = 1; d <= lastDay.getDate(); d++) {
+                    const dateEl = document.createElement('div');
+                    const thisDate = new Date(year, month, d);
+                    const dateString = `${year}-${(month + 1).toString().padStart(2, '0')}-${d.toString().padStart(2, '0')}`;
+                    
+                    dateEl.className = 'calendar-date';
+                    dateEl.textContent = d;
+                    if (d === state.today.getDate() && month === state.today.getMonth() && year === state.today.getFullYear()) dateEl.classList.add('today');
+                    if (d === state.selectedDate.getDate() && month === state.selectedDate.getMonth() && year === state.selectedDate.getFullYear()) dateEl.classList.add('selected');
+                    if (appData.events[dateString]) dateEl.classList.add('has-events');
+
+                    dateEl.onclick = () => {
+                        state.selectedDate = thisDate;
+                        renderCalendar(state.currentMonth, state.currentYear);
+                        renderLessonsForDate(state.selectedDate);
+                        renderEventsForDate(state.selectedDate);
+                    };
+                    grid.appendChild(dateEl);
+                }
+                
+                elements.calendarEl.appendChild(grid);
+            };
+
+            const changeMonth = (direction) => {
+                state.currentMonth += direction;
+                if (state.currentMonth < 0) { state.currentMonth = 11; state.currentYear--; }
+                if (state.currentMonth > 11) { state.currentMonth = 0; state.currentYear++; }
+                renderCalendar(state.currentMonth, state.currentYear);
+            };
+
+            // --- Inicialização da Aplicação ---
+            const init = () => {
+                const savedTheme = localStorage.getItem('theme') || 'dark';
+                applyTheme(savedTheme);
+                
+                renderAnnouncement();
+                renderAssignments();
+                renderMaterials();
+                renderCalendar(state.currentMonth, state.currentYear);
+                renderLessonsForDate(state.selectedDate);
+                renderEventsForDate(state.selectedDate);
+            };
+
+            init();
+        });
+    </script>
+</body>
+</html>
