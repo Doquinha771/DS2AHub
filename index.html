@@ -24,21 +24,26 @@
             --warning: #D29922;
             --danger: #F85149;
             --card-shadow: 0 16px 40px rgba(0, 0, 0, 0.4);
-            --radius-lg: 12px; /* Reduzido */
-            --radius-md: 8px;  /* Reduzido */
+            --radius-lg: 12px;
+            --radius-md: 8px;
             --glass-blur: 16px;
             --transition-speed: 0.4s;
-        }
-
-        /* --- Tema Claro --- */
-        body.light-theme {
-            --bg-start: #f7fafc;
-            --bg-end: #edf2f7;
-            --glass-bg: rgba(255, 255, 255, 0.7);
-            --glass-border: rgba(0, 0, 0, 0.08);
-            --text-primary: #1a202c;
-            --text-secondary: #4a5568;
-            --card-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+            /* Cores das Matérias */
+            --cor-geografia: #3FB950;
+            --cor-quimica: #BF39A1;
+            --cor-ingles: #D29922;
+            --cor-fisica: #F85149;
+            --cor-carreira: #58A6FF;
+            --cor-portugues: #A371F7;
+            --cor-historia: #E3B341;
+            --cor-biologia: #2AAA8A;
+            --cor-redes: #F77825;
+            --cor-matematica: #1F6FEB;
+            --cor-sociologia: #DB61A2;
+            --cor-processos: #3FB950;
+            --cor-logica: #A371F7;
+            --cor-edfisica: #F85149;
+            --cor-default: #8b949e;
         }
 
         /* --- Estilos Globais --- */
@@ -53,7 +58,7 @@
             background: var(--bg-end);
             display: flex;
             justify-content: center;
-            padding: 20px 16px; /* Reduzido */
+            padding: 20px 16px;
             color: var(--text-primary);
             -webkit-font-smoothing: antialiased;
             -moz-osx-font-smoothing: grayscale;
@@ -85,7 +90,7 @@
         /* --- Estrutura Principal --- */
         .app-container {
             width: 100%;
-            max-width: 920px; /* Reduzido */
+            max-width: 920px;
         }
 
         .header {
@@ -94,7 +99,7 @@
             align-items: center;
             justify-content: space-between;
             gap: 16px;
-            margin-bottom: 20px; /* Reduzido */
+            margin-bottom: 12px;
             animation: fadeInDown 0.7s 0.1s ease-out backwards;
         }
 
@@ -105,7 +110,7 @@
 
         h1 {
             margin: 0;
-            font-size: 1.7rem; /* Reduzido */
+            font-size: 1.7rem;
             font-weight: 800;
             background: var(--accent-gradient);
             -webkit-background-clip: text;
@@ -124,6 +129,29 @@
             align-items: center;
             gap: 12px;
         }
+        
+        /* --- Frase do Dia e Contagem Regressiva --- */
+        .top-info-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-bottom: 20px;
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+            animation: fadeIn 1s 0.5s ease-out backwards;
+        }
+        .quote-container {
+            font-style: italic;
+            flex-grow: 1;
+        }
+        .bimester-countdown {
+            font-weight: 600;
+            background: rgba(255,255,255,0.05);
+            padding: 6px 12px;
+            border-radius: var(--radius-md);
+        }
 
         /* --- Navegação por Abas --- */
         .tabs-nav {
@@ -140,11 +168,11 @@
         }
 
         .tab-btn {
-            padding: 8px 18px; /* Reduzido */
+            padding: 8px 18px;
             border: none;
             cursor: pointer;
             font-weight: 600;
-            font-size: 0.9rem; /* Reduzido */
+            font-size: 0.9rem;
             color: var(--text-secondary);
             border-radius: 999px;
             background: transparent;
@@ -168,8 +196,8 @@
             background: var(--glass-bg);
             border: 1px solid var(--glass-border);
             color: var(--text-primary);
-            width: 40px; /* Reduzido */
-            height: 40px; /* Reduzido */
+            width: 40px;
+            height: 40px;
             border-radius: 50%;
             cursor: pointer;
             box-shadow: 0 4px 10px rgba(0,0,0,0.2);
@@ -189,8 +217,8 @@
         }
         
         .theme-toggle svg {
-            width: 18px; /* Reduzido */
-            height: 18px; /* Reduzido */
+            width: 18px;
+            height: 18px;
         }
         
         /* --- Aviso Principal --- */
@@ -198,8 +226,8 @@
             background: linear-gradient(135deg, rgba(88, 166, 255, 0.1), rgba(31, 111, 235, 0.15));
             border: 1px solid var(--glass-border);
             border-radius: var(--radius-lg);
-            padding: 20px; /* Reduzido */
-            margin-bottom: 20px; /* Reduzido */
+            padding: 20px;
+            margin-bottom: 20px;
             position: relative;
             overflow: hidden;
             animation: fadeInTab 0.6s 0.2s ease-out backwards;
@@ -214,16 +242,19 @@
             margin-bottom: 0;
             border: none;
         }
+        .announcement-content {
+            padding-right: 40px; /* Espaço para o botão de fechar */
+        }
         .main-announcement h2 {
-            font-size: 1.2rem; /* Reduzido */
-            margin-bottom: 10px; /* Reduzido */
+            font-size: 1.2rem;
+            margin-bottom: 10px;
             border: none;
             padding-left: 0;
         }
         .main-announcement p {
             margin: 0;
             color: var(--text-secondary);
-            font-size: 0.95rem; /* Reduzido */
+            font-size: 0.95rem;
         }
         .close-announcement-btn {
             position: absolute;
@@ -245,6 +276,31 @@
         .close-announcement-btn:hover {
             background: rgba(0,0,0,0.4);
         }
+        
+        /* --- Reações --- */
+        .reactions-container {
+            margin-top: 16px;
+            display: flex;
+            gap: 10px;
+        }
+        .reaction-btn {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--glass-border);
+            border-radius: 999px;
+            padding: 6px 12px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-size: 0.9rem;
+        }
+        .reaction-btn:hover {
+            transform: scale(1.1);
+            background: rgba(255, 255, 255, 0.1);
+        }
+        .reaction-btn.active {
+            background: var(--accent-1);
+            color: #010409;
+            border-color: var(--accent-1);
+        }
 
         /* --- Conteúdo das Abas --- */
         .tab-content {
@@ -260,7 +316,7 @@
             background: var(--glass-bg);
             border-radius: var(--radius-lg);
             border: 1px solid var(--glass-border);
-            padding: 20px; /* Reduzido */
+            padding: 20px;
             box-shadow: var(--card-shadow);
             backdrop-filter: blur(var(--glass-blur));
             -webkit-backdrop-filter: blur(var(--glass-blur));
@@ -273,14 +329,14 @@
         h2 {
             margin-top: 0;
             margin-bottom: 20px;
-            font-size: 1.2rem; /* Reduzido */
+            font-size: 1.2rem;
             color: var(--text-primary);
             font-weight: 700;
         }
 
         /* --- Calendário e Eventos --- */
         .calendar {
-            padding: 14px; /* Reduzido */
+            padding: 14px;
             border-radius: var(--radius-md);
             background: rgba(0,0,0,0.1);
         }
@@ -291,20 +347,27 @@
             margin-bottom: 12px;
         }
         .calendar-header button {
-            width: 32px; /* Reduzido */
-            height: 32px; /* Reduzido */
+            width: 32px;
+            height: 32px;
+            background: rgba(255,255,255,0.05);
+            border: 1px solid var(--glass-border);
+            color: var(--text-primary);
+            border-radius: 50%;
+            cursor: pointer;
+            transition: all 0.2s ease;
         }
-        .calendar-header span { font-weight: 700; font-size: 1rem; } /* Reduzido */
+        .calendar-header button:hover { transform: scale(1.1); background: var(--accent-2); }
+        .calendar-header span { font-weight: 700; font-size: 1rem; }
         .calendar-grid {
             display: grid;
             grid-template-columns: repeat(7, 1fr);
-            gap: 6px; /* Reduzido */
+            gap: 6px;
         }
         .calendar-day, .calendar-date {
             text-align: center;
-            padding: 8px 4px; /* Reduzido */
-            border-radius: 6px; /* Reduzido */
-            font-size: 0.85rem; /* Reduzido */
+            padding: 8px 4px;
+            border-radius: 6px;
+            font-size: 0.85rem;
             position: relative;
         }
         .calendar-day { color: var(--text-secondary); font-weight: 600; }
@@ -330,15 +393,15 @@
             bottom: 4px;
             left: 50%;
             transform: translateX(-50%);
-            width: 4px; /* Reduzido */
-            height: 4px; /* Reduzido */
+            width: 4px;
+            height: 4px;
             border-radius: 50%;
             background-color: var(--accent-1);
         }
         #dailyEventsContainer {
-            margin-top: -10px; /* Ajustado */
-            margin-bottom: 20px; /* Reduzido */
-            padding: 18px; /* Reduzido */
+            margin-top: -10px;
+            margin-bottom: 20px;
+            padding: 18px;
             background: rgba(0,0,0,0.1);
             border-radius: 0 0 var(--radius-lg) var(--radius-lg);
             transition: all 0.3s ease;
@@ -350,19 +413,19 @@
         .event-list { list-style: none; padding: 0; margin: 0; }
         .event-item {
             background: rgba(0,0,0,0.2);
-            padding: 10px; /* Reduzido */
+            padding: 10px;
             border-radius: var(--radius-md);
             margin-bottom: 8px;
             display: flex;
             align-items: center;
-            gap: 10px; /* Reduzido */
+            gap: 10px;
             animation: fadeIn 0.5s ease;
         }
         @keyframes fadeIn { from { opacity: 0; transform: translateX(-10px); } to { opacity: 1; transform: translateX(0); } }
         .event-item:last-child { margin-bottom: 0; }
         .event-type {
             font-weight: 600;
-            font-size: 0.8rem; /* Reduzido */
+            font-size: 0.8rem;
             padding: 4px 8px;
             border-radius: 6px;
             color: #010409;
@@ -380,24 +443,32 @@
         }
         .daily-lesson-card h3 {
             margin: 0 0 16px 0;
-            font-size: 1.15rem; /* Reduzido */
+            font-size: 1.15rem;
             color: var(--text-primary);
         }
         .daily-lesson-card ul {
             list-style: none;
             padding: 0;
             margin: 0;
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); /* Reduzido */
-            gap: 10px; /* Reduzido */
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
         }
         .daily-lesson-card li {
             background: rgba(0,0,0,0.15);
-            padding: 10px; /* Reduzido */
+            padding: 12px 14px;
             border-radius: 8px;
-            font-size: 0.9rem; /* Reduzido */
+            font-size: 0.9rem;
             color: var(--text-secondary);
-            border-left: 3px solid var(--accent-1);
+            border-left: 3px solid var(--cor-default);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .lesson-count {
+            font-size: 0.85rem;
+            font-weight: 700;
+            color: var(--text-primary);
         }
         .no-lessons-message {
             text-align: center;
@@ -415,7 +486,7 @@
         .item-card {
             background: rgba(0,0,0,0.15);
             border-radius: var(--radius-md);
-            padding: 16px; /* Reduzido */
+            padding: 16px;
             border: 1px solid transparent;
             transition: all 0.25s ease;
             display: flex;
@@ -430,10 +501,10 @@
         .item-title {
             font-weight: 600;
             color: var(--text-primary);
-            font-size: 0.95rem; /* Reduzido */
+            font-size: 0.95rem;
         }
         .item-status {
-            font-size: 0.8rem; /* Reduzido */
+            font-size: 0.8rem;
             font-weight: 600;
             border-radius: 6px;
             padding: 4px 10px;
@@ -458,15 +529,82 @@
             gap: 16px;
         }
         .material-icon {
-            font-size: 1.5rem; /* Reduzido */
+            font-size: 1.5rem;
             background: var(--accent-gradient);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
         }
         .material-desc {
             color: var(--text-secondary);
-            font-size: 0.85rem; /* Reduzido */
+            font-size: 0.85rem;
         }
+        
+        /* --- Quick Link --- */
+        .quick-link-container {
+            margin-top: 24px;
+        }
+        .quick-link-input {
+            width: 100%;
+            background: rgba(0,0,0,0.2);
+            border: 1px solid var(--glass-border);
+            border-radius: var(--radius-md);
+            padding: 12px;
+            color: var(--text-primary);
+            font-size: 0.9rem;
+            margin-bottom: 10px;
+        }
+        .quick-link-btn {
+            background: var(--accent-2);
+            color: #fff;
+            border: none;
+            padding: 10px 16px;
+            border-radius: var(--radius-md);
+            cursor: pointer;
+            font-weight: 600;
+            transition: background 0.2s;
+        }
+        .quick-link-btn:hover {
+            background: var(--accent-1);
+        }
+        
+        /* --- Busca Calendário --- */
+        .calendar-search-container {
+            position: relative;
+            margin-bottom: 12px;
+        }
+        #searchInput {
+            width: 100%;
+            background: rgba(0,0,0,0.2);
+            border: 1px solid var(--glass-border);
+            border-radius: var(--radius-md);
+            padding: 10px;
+            color: var(--text-primary);
+            font-size: 0.9rem;
+        }
+        #searchResults {
+            position: absolute;
+            width: 100%;
+            background: var(--glass-bg);
+            border: 1px solid var(--glass-border);
+            border-radius: var(--radius-md);
+            margin-top: 4px;
+            max-height: 150px;
+            overflow-y: auto;
+            z-index: 10;
+        }
+        .search-result-item {
+            padding: 10px;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        .search-result-item:hover {
+            background: rgba(255,255,255,0.1);
+        }
+        .search-result-item small {
+            color: var(--text-secondary);
+            margin-left: 8px;
+        }
+
 
         /* --- Responsividade --- */
         @media (max-width: 768px) {
@@ -497,18 +635,26 @@
             </div>
         </header>
 
+        <div class="top-info-container">
+            <div class="quote-container" id="quoteContainer"></div>
+            <div class="bimester-countdown" id="bimesterCountdown"></div>
+        </div>
         <div class="main-announcement" id="mainAnnouncement"></div>
 
         <main>
             <!-- Aba de Aulas -->
             <section id="tab-content-0" class="tab-content active" role="tabpanel">
                 <div class="content-card">
+                    <div class="calendar-search-container">
+                        <input type="text" id="searchInput" placeholder="Buscar evento ou data (ex: Prova, 2025-08-28)...">
+                        <div id="searchResults"></div>
+                    </div>
                     <div class="calendar-wrap">
                         <div id="calendar" class="calendar"></div>
                     </div>
                     <div id="dailyEventsContainer"></div>
                 </div>
-                <div class="content-card">
+                <div class="content-card" style="margin-top: 20px;">
                     <h2>Aulas do Dia</h2>
                     <div id="dailyLessonsContainer"></div>
                 </div>
@@ -531,6 +677,11 @@
                  <div class="content-card">
                     <h2>Materiais de Apoio</h2>
                     <div class="list-container" id="materialsContainer"></div>
+                    <div class="quick-link-container">
+                        <h2 style="font-size: 1.1rem; margin-top: 24px; margin-bottom: 12px;">Link Rápido</h2>
+                        <input type="text" id="quickLinkInput" class="quick-link-input" placeholder="Cole um link útil aqui...">
+                        <button id="saveQuickLinkBtn" class="quick-link-btn">Salvar Link</button>
+                    </div>
                 </div>
             </section>
         </main>
@@ -542,34 +693,52 @@
             //  1. CENTRAL DE DADOS - Edite aqui para atualizar o conteúdo do site
             // =================================================================================
             const appData = {
+                bimesterEndDate: '2025-10-10', // Fim do 3º Bimestre
                 announcement: {
-                    title: "Atenção, turma!",
-                    message: "Quinta-feira será o dia mais corrido da semana! Preparem-se para a prova de Matemática e as entregas de Inglês e Processos."
+                    id: 'anuncio-semana-corrida', // ID único para o aviso
+                    title: "Uma nova semana começa!",
+                    message: "Vamos com tudo! Novo trabalho de Carreira lançado para segunda-feira. Mantenham o foco e a organização!"
                 },
                 lessons: {
-                    1: { day: "Segunda-feira", subjects: ["Geografia", "Química", "Inglês", "Física", "Carreira", "Carreira", "Carreira"] },
-                    2: { day: "Terça-feira", subjects: ["Português", "História", "Biologia", "Geografia", "Redes", "Redes", "Redes"] },
-                    3: { day: "Quarta-feira", subjects: ["Matemática", "Matemática", "Biologia", "Sociologia", "Processos", "Processos", "Processos"] },
-                    4: { day: "Quinta-feira", subjects: ["Matemática", "Inglês", "Ed. Física", "Lógica", "Lógica", "Matemática", "Português"] },
-                    5: { day: "Sexta-feira", subjects: ["Sociologia", "Lógica", "Lógica", "Física", "Português", "História", "Química"] }
+                    1: { day: "Segunda-feira", subjects: [
+                        { name: "Geografia", color: "geografia" }, { name: "Química", color: "quimica" }, { name: "Inglês", color: "ingles" }, { name: "Física", color: "fisica" }, { name: "Carreira", count: 3, color: "carreira" }
+                    ]},
+                    2: { day: "Terça-feira", subjects: [
+                        { name: "Português", color: "portugues" }, { name: "História", color: "historia" }, { name: "Biologia", color: "biologia" }, { name: "Geografia", color: "geografia" }, { name: "Redes", count: 3, color: "redes" }
+                    ]},
+                    3: { day: "Quarta-feira", subjects: [
+                        { name: "Matemática", count: 2, color: "matematica" }, { name: "Biologia", color: "biologia" }, { name: "Sociologia", color: "sociologia" }, { name: "Processos", count: 3, color: "processos" }
+                    ]},
+                    4: { day: "Quinta-feira", subjects: [
+                        { name: "Matemática", color: "matematica" }, { name: "Inglês", color: "ingles" }, { name: "Ed. Física", color: "edfisica" }, { name: "Lógica", count: 2, color: "logica" }, { name: "Matemática", color: "matematica" }, { name: "Português", color: "portugues" }
+                    ]},
+                    5: { day: "Sexta-feira", subjects: [
+                        { name: "Sociologia", color: "sociologia" }, { name: "Lógica", count: 2, color: "logica" }, { name: "Física", color: "fisica" }, { name: "Português", color: "portugues" }, { name: "História", color: "historia" }, { name: "Química", color: "quimica" }
+                    ]}
                 },
                 assignments: [
-                    { title: "Inglês", status: 'pending' },
-                    { title: "Processos", status: 'pending' },
-                    { title: "Carreira", status: 'pending' },
+                    { title: "Inglês", status: 'pending', date: '2025-08-28' },
+                    { title: "Carreira", status: 'pending', date: '2025-09-01' },
                     { title: "Física", status: 'done' }
                 ],
                 events: {
+                    '2025-09-01': [ { type: 'Trabalho', title: 'Entrega do Trabalho de Carreira' } ],
                     '2025-08-28': [
                         { type: 'Prova', title: 'Prova de Matemática' },
-                        { type: 'Trabalho', title: 'Entrega do Trabalho de Inglês' },
-                        { type: 'Trabalho', title: 'Entrega do Trabalho de Processos' }
+                        { type: 'Trabalho', title: 'Entrega do Trabalho de Inglês' }
                     ]
                 },
                 materials: [
                     { icon: '📄', title: "Currículo - Carreira", desc: "Aula de Carreira" },
                     { icon: '🔗', title: "Atividades - Processos/Redes", desc: "Links de atividades" },
                     { icon: '💻', title: "Atividades AVA", desc: "Plataforma online" }
+                ],
+                quotes: [
+                    "A disciplina é a ponte entre metas e realizações.",
+                    "Comece onde você está. Use o que você tem. Faça o que você pode.",
+                    "O sucesso é a soma de pequenos esforços repetidos dia após dia.",
+                    "Acredite em si mesmo e tudo será possível.",
+                    "O futuro pertence àqueles que acreditam na beleza de seus sonhos."
                 ]
             };
 
@@ -590,6 +759,12 @@
                 doneAssignments: document.getElementById('doneAssignments'),
                 materialsContainer: document.getElementById('materialsContainer'),
                 announcementContainer: document.getElementById('mainAnnouncement'),
+                quoteContainer: document.getElementById('quoteContainer'),
+                quickLinkInput: document.getElementById('quickLinkInput'),
+                saveQuickLinkBtn: document.getElementById('saveQuickLinkBtn'),
+                searchInput: document.getElementById('searchInput'),
+                searchResults: document.getElementById('searchResults'),
+                bimesterCountdown: document.getElementById('bimesterCountdown'),
             };
 
             const state = {
@@ -618,15 +793,48 @@
             };
 
             // --- Funções de Renderização ---
+            const renderQuote = () => {
+                const randomQuote = appData.quotes[Math.floor(Math.random() * appData.quotes.length)];
+                elements.quoteContainer.textContent = `"${randomQuote}"`;
+            };
+
             const renderAnnouncement = () => {
-                const { title, message } = appData.announcement;
+                const { id, title, message } = appData.announcement;
                 elements.announcementContainer.innerHTML = `
-                    <button class="close-announcement-btn" id="closeAnnouncementBtn" title="Fechar aviso">×</button>
-                    <h2>${title}</h2>
-                    <p>${message}</p>
+                    <div class="announcement-content">
+                        <button class="close-announcement-btn" id="closeAnnouncementBtn" title="Fechar aviso">×</button>
+                        <h2>${title}</h2>
+                        <p>${message}</p>
+                    </div>
+                    <div class="reactions-container" id="reactionsContainer"></div>
                 `;
                 document.getElementById('closeAnnouncementBtn').addEventListener('click', () => {
                     elements.announcementContainer.classList.add('hidden');
+                });
+                renderReactions(id);
+            };
+            
+            const renderReactions = (announcementId) => {
+                const container = document.getElementById('reactionsContainer');
+                const reactions = ['👍', '🔥', '🤔'];
+                container.innerHTML = reactions.map(emoji => {
+                    const key = `reaction-${announcementId}-${emoji}`;
+                    const isActive = localStorage.getItem(key) === 'true';
+                    return `<button class="reaction-btn ${isActive ? 'active' : ''}" data-emoji="${emoji}" data-key="${key}">${emoji}</button>`;
+                }).join('');
+
+                container.querySelectorAll('.reaction-btn').forEach(btn => {
+                    btn.addEventListener('click', () => {
+                        const key = btn.dataset.key;
+                        const isActive = localStorage.getItem(key) === 'true';
+                        if (isActive) {
+                            localStorage.removeItem(key);
+                            btn.classList.remove('active');
+                        } else {
+                            localStorage.setItem(key, 'true');
+                            btn.classList.add('active');
+                        }
+                    });
                 });
             };
 
@@ -635,7 +843,13 @@
                 const lessonData = appData.lessons[dayOfWeek];
 
                 if (lessonData) {
-                    const subjectListHtml = lessonData.subjects.map(s => `<li>${s}</li>`).join('');
+                    const subjectListHtml = lessonData.subjects.map(s => {
+                        const countText = s.count > 1 ? `<span class="lesson-count">${s.count}x</span>` : '';
+                        return `<li style="border-left-color: var(--cor-${s.color});">
+                                    <span>${s.name}</span>
+                                    ${countText}
+                                </li>`;
+                    }).join('');
                     elements.dailyLessonsContainer.innerHTML = `
                         <div class="daily-lesson-card">
                             <h3>${lessonData.day}</h3>
@@ -679,14 +893,24 @@
                     `;
                     elements.materialsContainer.appendChild(card);
                 });
+                
+                const savedLink = localStorage.getItem('quickLink');
+                if(savedLink) {
+                    const card = document.createElement('div');
+                    card.className = 'item-card material-card';
+                    card.innerHTML = `
+                        <span class="material-icon">🚀</span>
+                        <div>
+                            <div class="item-title">Link Rápido</div>
+                            <a href="${savedLink}" target="_blank" rel="noopener noreferrer" class="material-desc" style="color: var(--accent-1); text-decoration: underline;">${savedLink.substring(0, 25)}...</a>
+                        </div>
+                    `;
+                    elements.materialsContainer.appendChild(card);
+                }
             };
 
             const renderEventsForDate = (date) => {
-                const year = date.getFullYear();
-                const month = (date.getMonth() + 1).toString().padStart(2, '0');
-                const day = date.getDate().toString().padStart(2, '0');
-                const dateString = `${year}-${month}-${day}`;
-                
+                const dateString = toYYYYMMDD(date);
                 const events = appData.events[dateString];
 
                 if (events && events.length > 0) {
@@ -701,8 +925,28 @@
                     elements.dailyEventsContainer.innerHTML = '';
                 }
             };
+            
+            const renderBimesterCountdown = () => {
+                const endDate = new Date(appData.bimesterEndDate + 'T23:59:59');
+                const now = new Date();
+                const diffTime = endDate - now;
+                const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+
+                if (diffDays > 0) {
+                    elements.bimesterCountdown.innerHTML = `⏳ Faltam ${diffDays} dias para o fim do 3º bimestre!`;
+                } else {
+                    elements.bimesterCountdown.innerHTML = `🎉 3º Bimestre concluído!`;
+                }
+            };
 
             // --- Lógica do Calendário ---
+            const toYYYYMMDD = (date) => {
+                const year = date.getFullYear();
+                const month = (date.getMonth() + 1).toString().padStart(2, '0');
+                const day = date.getDate().toString().padStart(2, '0');
+                return `${year}-${month}-${day}`;
+            };
+
             const renderCalendar = (month, year) => {
                 elements.calendarEl.innerHTML = '';
                 const firstDay = new Date(year, month, 1);
@@ -730,7 +974,7 @@
                 for (let d = 1; d <= lastDay.getDate(); d++) {
                     const dateEl = document.createElement('div');
                     const thisDate = new Date(year, month, d);
-                    const dateString = `${year}-${(month + 1).toString().padStart(2, '0')}-${d.toString().padStart(2, '0')}`;
+                    const dateString = toYYYYMMDD(thisDate);
                     
                     dateEl.className = 'calendar-date';
                     dateEl.textContent = d;
@@ -756,18 +1000,71 @@
                 if (state.currentMonth > 11) { state.currentMonth = 0; state.currentYear++; }
                 renderCalendar(state.currentMonth, state.currentYear);
             };
+            
+            // --- Lógica da Busca ---
+            const searchableItems = [
+                ...Object.entries(appData.events).flatMap(([date, events]) => 
+                    events.map(event => ({ ...event, date }))
+                ),
+                ...appData.assignments.filter(a => a.date).map(a => ({
+                    type: 'Trabalho', title: `Entrega de ${a.title}`, date: a.date
+                }))
+            ];
+
+            elements.searchInput.addEventListener('input', (e) => {
+                const query = e.target.value.toLowerCase();
+                if (query.length < 2) {
+                    elements.searchResults.innerHTML = '';
+                    return;
+                }
+                const results = searchableItems.filter(item => 
+                    item.title.toLowerCase().includes(query) || item.date.includes(query)
+                );
+                
+                elements.searchResults.innerHTML = results.map(item => `
+                    <div class="search-result-item" data-date="${item.date}">
+                        ${item.title} <small>${new Date(item.date + 'T00:00:00').toLocaleDateString()}</small>
+                    </div>
+                `).join('');
+                
+                elements.searchResults.querySelectorAll('.search-result-item').forEach(item => {
+                    item.addEventListener('click', () => {
+                        const date = new Date(item.dataset.date + 'T00:00:00');
+                        state.selectedDate = date;
+                        state.currentMonth = date.getMonth();
+                        state.currentYear = date.getFullYear();
+                        renderCalendar(state.currentMonth, state.currentYear);
+                        renderLessonsForDate(state.selectedDate);
+                        renderEventsForDate(state.selectedDate);
+                        elements.searchInput.value = '';
+                        elements.searchResults.innerHTML = '';
+                    });
+                });
+            });
+            
+            // --- Link Rápido ---
+            elements.saveQuickLinkBtn.onclick = () => {
+                const link = elements.quickLinkInput.value;
+                if(link) {
+                    localStorage.setItem('quickLink', link);
+                    renderMaterials();
+                    elements.quickLinkInput.value = '';
+                }
+            };
 
             // --- Inicialização da Aplicação ---
             const init = () => {
                 const savedTheme = localStorage.getItem('theme') || 'dark';
                 applyTheme(savedTheme);
                 
+                renderQuote();
                 renderAnnouncement();
                 renderAssignments();
                 renderMaterials();
                 renderCalendar(state.currentMonth, state.currentYear);
                 renderLessonsForDate(state.selectedDate);
                 renderEventsForDate(state.selectedDate);
+                renderBimesterCountdown();
             };
 
             init();
