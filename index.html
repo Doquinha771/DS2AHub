@@ -23,6 +23,7 @@
             --success: #3FB950;
             --warning: #D29922;
             --danger: #F85149;
+            --holiday: #A371F7;
             --card-shadow: 0 16px 40px rgba(0, 0, 0, 0.4);
             --radius-lg: 12px;
             --radius-md: 8px;
@@ -76,10 +77,11 @@
             width: 100%;
             height: 100%;
             background: 
-                radial-gradient(ellipse 40% 50% at 20% 30%, rgba(31, 111, 235, 0.15), transparent),
-                radial-gradient(ellipse 40% 50% at 80% 60%, rgba(191, 57, 161, 0.15), transparent);
+                radial-gradient(ellipse 40% 50% at 20% 30%, var(--accent-1-trans), transparent),
+                radial-gradient(ellipse 40% 50% at 80% 60%, var(--accent-2-trans), transparent);
             z-index: -1;
             animation: aurora-glow 20s linear infinite;
+            transition: background 1s ease-in-out;
         }
 
         @keyframes aurora-glow {
@@ -277,7 +279,7 @@
             background: rgba(0,0,0,0.4);
         }
         
-        /* --- Reações --- */
+        /* --- Reações e Animação de Partículas --- */
         .reactions-container {
             margin-top: 16px;
             display: flex;
@@ -291,6 +293,7 @@
             cursor: pointer;
             transition: all 0.2s ease;
             font-size: 0.9rem;
+            position: relative;
         }
         .reaction-btn:hover {
             transform: scale(1.1);
@@ -301,15 +304,41 @@
             color: #010409;
             border-color: var(--accent-1);
         }
+        .particle {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 4px;
+            height: 4px;
+            border-radius: 50%;
+            background-color: var(--accent-1);
+            opacity: 0;
+            animation: explode 0.6s ease-out forwards;
+        }
+        @keyframes explode {
+            0% { transform: translate(-50%, -50%) scale(1); opacity: 1; }
+            100% { transform: translate(-50%, -50%) scale(0); opacity: 0; }
+        }
 
-        /* --- Conteúdo das Abas --- */
+        /* --- Conteúdo das Abas e Transições --- */
         .tab-content {
             display: none;
-            animation: fadeInTab 0.5s ease-out;
         }
-        
         .tab-content.active {
             display: block;
+            animation: pageEnter 0.5s ease-out;
+        }
+        .tab-content.is-exiting {
+            animation: pageExit 0.3s ease-in;
+        }
+
+        @keyframes pageEnter {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes pageExit {
+            from { opacity: 1; transform: translateY(0); }
+            to { opacity: 0; transform: translateY(-20px); }
         }
 
         .content-card {
@@ -322,10 +351,6 @@
             -webkit-backdrop-filter: blur(var(--glass-blur));
         }
         
-        .tab-content > .content-card {
-             animation: fadeInTab 0.6s 0.2s ease-out backwards;
-        }
-
         h2 {
             margin-top: 0;
             margin-bottom: 20px;
@@ -398,6 +423,7 @@
             border-radius: 50%;
             background-color: var(--accent-1);
         }
+        .calendar-date.is-holiday::after { background-color: var(--holiday); }
         #dailyEventsContainer {
             margin-top: -10px;
             margin-bottom: 20px;
@@ -422,6 +448,10 @@
             animation: fadeIn 0.5s ease;
         }
         @keyframes fadeIn { from { opacity: 0; transform: translateX(-10px); } to { opacity: 1; transform: translateX(0); } }
+        .event-item.is-done {
+            opacity: 0.6;
+            text-decoration: line-through;
+        }
         .event-item:last-child { margin-bottom: 0; }
         .event-type {
             font-weight: 600;
@@ -433,6 +463,7 @@
         }
         .event-type.prova { background: var(--danger); }
         .event-type.trabalho { background: var(--warning); }
+        .event-type.feriado { background: var(--holiday); }
         
         /* --- Aulas do Dia --- */
         #dailyLessonsContainer {
@@ -628,8 +659,8 @@
                     <button class="tab-btn" onclick="showTab(1)">Trabalhos</button>
                     <button class="tab-btn" onclick="showTab(2)">Materiais</button>
                 </nav>
-                <button class="theme-toggle" onclick="toggleTheme()" title="Alternar tema">
-                    <svg class="moon-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path fill-rule="evenodd" d="M9.528 1.718a.75.75 0 01.162.819A8.97 8.97 0 009 6a9 9 0 009 9 8.97 8.97 0 003.463-.69.75.75 0 01.981.98 10.503 10.503 0 01-9.694 6.46c-5.799 0-10.5-4.701-10.5-10.5 0-4.368 2.667-8.112 6.46-9.694a.75.75 0 01.818.162z" clip-rule="evenodd"></path></svg>
+                <button class="theme-toggle" id="themeToggleBtn" title="Alternar tema">
+                    <svg class="moon-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path fill-rule="evenodd" d="M9.528 1.718a.75.Uma nova semana começa!.75 0 01.162.819A8.97 8.97 0 009 6a9 9 0 009 9 8.97 8.97 0 003.463-.69.75.75 0 01.981.98 10.503 10.503 0 01-9.694 6.46c-5.799 0-10.5-4.701-10.5-10.5 0-4.368 2.667-8.112 6.46-9.694a.75.75 0 01.818.162z" clip-rule="evenodd"></path></svg>
                     <svg class="sun-icon" style="display:none;" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2.25a.75.75 0 01.75.75v2.25a.75.75 0 01-1.5 0V3a.75.75 0 01.75-.75zM7.5 12a4.5 4.5 0 119 0 4.5 4.5 0 01-9 0zM18.894 6.106a.75.75 0 010 1.06l-1.591 1.59a.75.75 0 11-1.06-1.06l1.59-1.59a.75.75 0 011.06 0zM21.75 12a.75.75 0 01-.75.75h-2.25a.75.75 0 010-1.5h2.25a.75.75 0 01.75.75zM17.836 17.836a.75.75 0 01-1.06 0l-1.59-1.591a.75.75 0 111.06-1.06l1.591 1.59a.75.75 0 010 1.06zM12 21a.75.75 0 01-.75-.75v-2.25a.75.75 0 011.5 0v2.25A.75.75 0 0112 21zM5.106 17.836a.75.75 0 010-1.06l1.591-1.59a.75.75 0 011.06 1.06l-1.59 1.59a.75.75 0 01-1.06 0zM3 12a.75.75 0 01.75-.75h2.25a.75.75 0 010 1.5H3.75A.75.75 0 013 12zM6.106 6.106a.75.75 0 011.06 0l1.59 1.591a.75.75 0 11-1.06 1.06l-1.59-1.59a.75.75 0 010-1.06z"></path></svg>
                 </button>
             </div>
@@ -675,7 +706,8 @@
             <!-- Aba de Materiais -->
             <section id="tab-content-2" class="tab-content">
                  <div class="content-card">
-                    <h2>Materiais de Apoio</h2>
+                    <h2>Ferramentas & Recursos</h2>
+                    <div id="maintenanceMessage" style="text-align: center; color: var(--text-secondary); padding: 10px 0;">A antiga lista de materiais está em manutenção.</div>
                     <div class="list-container" id="materialsContainer"></div>
                     <div class="quick-link-container">
                         <h2 style="font-size: 1.1rem; margin-top: 24px; margin-bottom: 12px;">Link Rápido</h2>
@@ -693,11 +725,11 @@
             //  1. CENTRAL DE DADOS - Edite aqui para atualizar o conteúdo do site
             // =================================================================================
             const appData = {
-                bimesterEndDate: '2025-10-10', // Fim do 3º Bimestre
+                bimesterEndDate: '2025-09-30', // Fim do 3º Bimestre
                 announcement: {
-                    id: 'anuncio-semana-corrida', // ID único para o aviso
-                    title: "Uma nova semana começa!",
-                    message: "Vamos com tudo! Novo trabalho de Carreira lançado para segunda-feira. Mantenham o foco e a organização!"
+                    id: 'anuncio-setembro', // ID único para o aviso
+                    title: "Foco total em Setembro!",
+                    message: "Trabalho de Inglês concluído com sucesso! Agora, preparem-se para a entrega de Educação Física na próxima semana. Vamos fechar o bimestre com chave de ouro!"
                 },
                 lessons: {
                     1: { day: "Segunda-feira", subjects: [
@@ -717,21 +749,31 @@
                     ]}
                 },
                 assignments: [
-                    { title: "Inglês", status: 'pending', date: '2025-08-28' },
+                    { title: "Educação Física", status: 'pending', date: '2025-09-04' },
                     { title: "Carreira", status: 'pending', date: '2025-09-01' },
+                    { title: "Inglês", status: 'done', date: '2025-08-28' },
                     { title: "Física", status: 'done' }
                 ],
                 events: {
                     '2025-09-01': [ { type: 'Trabalho', title: 'Entrega do Trabalho de Carreira' } ],
+                    '2025-09-04': [ { type: 'Trabalho', title: 'Entrega do Trabalho de Educação Física' } ],
                     '2025-08-28': [
                         { type: 'Prova', title: 'Prova de Matemática' },
                         { type: 'Trabalho', title: 'Entrega do Trabalho de Inglês' }
-                    ]
+                    ],
+                    // Feriados Nacionais de 2025 (Setembro em diante)
+                    '2025-09-07': [ { type: 'Feriado', title: 'Independência do Brasil' } ],
+                    '2025-10-12': [ { type: 'Feriado', title: 'Nossa Senhora Aparecida' } ],
+                    '2025-11-02': [ { type: 'Feriado', title: 'Finados' } ],
+                    '2025-11-15': [ { type: 'Feriado', title: 'Proclamação da República' } ],
+                    '2025-11-20': [ { type: 'Feriado', title: 'Dia da Consciência Negra' } ],
+                    '2025-12-25': [ { type: 'Feriado', title: 'Natal' } ]
                 },
                 materials: [
-                    { icon: '📄', title: "Currículo - Carreira", desc: "Aula de Carreira" },
-                    { icon: '🔗', title: "Atividades - Processos/Redes", desc: "Links de atividades" },
-                    { icon: '💻', title: "Atividades AVA", desc: "Plataforma online" }
+                    { icon: '🎨', title: "Figma", desc: "Design de interfaces e protótipos." },
+                    { icon: '💻', title: "VS Code", desc: "Editor de código fonte popular." },
+                    { icon: '📦', title: "GitHub", desc: "Plataforma de hospedagem de código." },
+                    { icon: '🧠', title: "Stack Overflow", desc: "Comunidade para tirar dúvidas." }
                 ],
                 quotes: [
                     "A disciplina é a ponte entre metas e realizações.",
@@ -739,6 +781,12 @@
                     "O sucesso é a soma de pequenos esforços repetidos dia após dia.",
                     "Acredite em si mesmo e tudo será possível.",
                     "O futuro pertence àqueles que acreditam na beleza de seus sonhos."
+                ],
+                colorPalettes: [
+                    { accent1: '#58A6FF', accent2: '#1F6FEB' }, // Azul
+                    { accent1: '#3FB950', accent2: '#2AAA8A' }, // Verde
+                    { accent1: '#BF39A1', accent2: '#A371F7' }, // Roxo/Rosa
+                    { accent1: '#F77825', accent2: '#D29922' }, // Laranja/Amarelo
                 ]
             };
 
@@ -747,9 +795,11 @@
             // =================================================================================
             
             const elements = {
+                root: document.documentElement,
+                body: document.body,
                 tabButtons: document.querySelectorAll('.tab-btn'),
                 tabContents: document.querySelectorAll('.tab-content'),
-                themeToggleBtn: document.querySelector('.theme-toggle'),
+                themeToggleBtn: document.getElementById('themeToggleBtn'),
                 sunIcon: document.querySelector('.sun-icon'),
                 moonIcon: document.querySelector('.moon-icon'),
                 calendarEl: document.getElementById('calendar'),
@@ -772,23 +822,36 @@
                 selectedDate: new Date(),
                 currentMonth: new Date().getMonth(),
                 currentYear: new Date().getFullYear(),
+                activeTab: 0,
             };
 
             // --- Lógica das Abas ---
             window.showTab = (index) => {
-                elements.tabButtons.forEach((btn, i) => btn.classList.toggle('active', i === index));
-                elements.tabContents.forEach((content, i) => content.classList.toggle('active', i === index));
+                if (index === state.activeTab) return;
+                const currentTab = elements.tabContents[state.activeTab];
+                const nextTab = elements.tabContents[index];
+                
+                currentTab.classList.add('is-exiting');
+                
+                currentTab.addEventListener('animationend', () => {
+                    currentTab.classList.remove('active', 'is-exiting');
+                    elements.tabButtons[state.activeTab].classList.remove('active');
+
+                    nextTab.classList.add('active');
+                    elements.tabButtons[index].classList.add('active');
+                    state.activeTab = index;
+                }, { once: true });
             };
 
             // --- Lógica do Tema ---
             const applyTheme = (theme) => {
-                document.body.className = `${theme}-theme`;
+                elements.body.className = `${theme}-theme`;
                 elements.sunIcon.style.display = theme === 'light' ? 'block' : 'none';
                 elements.moonIcon.style.display = theme === 'dark' ? 'block' : 'none';
                 localStorage.setItem('theme', theme);
             };
             elements.themeToggleBtn.onclick = () => {
-                const newTheme = document.body.classList.contains('dark-theme') ? 'light' : 'dark';
+                const newTheme = elements.body.classList.contains('dark-theme') ? 'light' : 'dark';
                 applyTheme(newTheme);
             };
 
@@ -814,6 +877,29 @@
                 renderReactions(id);
             };
             
+            const createParticleExplosion = (target) => {
+                for (let i = 0; i < 15; i++) {
+                    const particle = document.createElement('div');
+                    particle.classList.add('particle');
+                    const angle = Math.random() * 360;
+                    const distance = Math.random() * 40 + 20;
+                    const size = Math.random() * 3 + 2;
+                    particle.style.width = `${size}px`;
+                    particle.style.height = `${size}px`;
+                    particle.style.setProperty('--x', `${Math.cos(angle) * distance}px`);
+                    particle.style.setProperty('--y', `${Math.sin(angle) * distance}px`);
+                    particle.style.animation = `explode 0.6s ${Math.random() * 0.2}s ease-out forwards`;
+                    particle.style.animationName = 'explode';
+                    particle.style.animationDuration = '0.6s';
+                    particle.style.animationDelay = `${Math.random() * 0.2}s`;
+                    particle.style.animationTimingFunction = 'ease-out';
+                    particle.style.animationFillMode = 'forwards';
+                    
+                    target.appendChild(particle);
+                    setTimeout(() => particle.remove(), 800);
+                }
+            };
+            
             const renderReactions = (announcementId) => {
                 const container = document.getElementById('reactionsContainer');
                 const reactions = ['👍', '🔥', '🤔'];
@@ -824,7 +910,7 @@
                 }).join('');
 
                 container.querySelectorAll('.reaction-btn').forEach(btn => {
-                    btn.addEventListener('click', () => {
+                    btn.addEventListener('click', (e) => {
                         const key = btn.dataset.key;
                         const isActive = localStorage.getItem(key) === 'true';
                         if (isActive) {
@@ -833,6 +919,7 @@
                         } else {
                             localStorage.setItem(key, 'true');
                             btn.classList.add('active');
+                            createParticleExplosion(e.currentTarget);
                         }
                     });
                 });
@@ -914,12 +1001,15 @@
                 const events = appData.events[dateString];
 
                 if (events && events.length > 0) {
-                    const eventListHtml = events.map(event => `
-                        <li class="event-item">
+                    const eventListHtml = events.map(event => {
+                        const assignment = appData.assignments.find(a => event.title.includes(a.title));
+                        const isDone = assignment && assignment.status === 'done';
+                        return `
+                        <li class="event-item ${isDone ? 'is-done' : ''}">
                             <span class="event-type ${event.type.toLowerCase()}">${event.type}</span>
                             <span>${event.title}</span>
                         </li>
-                    `).join('');
+                    `}).join('');
                     elements.dailyEventsContainer.innerHTML = `<ul class="event-list">${eventListHtml}</ul>`;
                 } else {
                     elements.dailyEventsContainer.innerHTML = '';
@@ -980,7 +1070,12 @@
                     dateEl.textContent = d;
                     if (d === state.today.getDate() && month === state.today.getMonth() && year === state.today.getFullYear()) dateEl.classList.add('today');
                     if (d === state.selectedDate.getDate() && month === state.selectedDate.getMonth() && year === state.selectedDate.getFullYear()) dateEl.classList.add('selected');
-                    if (appData.events[dateString]) dateEl.classList.add('has-events');
+                    if (appData.events[dateString]) {
+                        dateEl.classList.add('has-events');
+                        if(appData.events[dateString].some(e => e.type === 'Feriado')) {
+                            dateEl.classList.add('is-holiday');
+                        }
+                    }
 
                     dateEl.onclick = () => {
                         state.selectedDate = thisDate;
@@ -1051,11 +1146,36 @@
                     elements.quickLinkInput.value = '';
                 }
             };
+            
+            // --- Cores Semanais ---
+            const getWeekNumber = (d) => {
+                d = new Date(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate()));
+                d.setUTCDate(d.getUTCDate() + 4 - (d.getUTCDay()||7));
+                var yearStart = new Date(Date.UTC(d.getUTCFullYear(),0,1));
+                var weekNo = Math.ceil(( ( (d - yearStart) / 86400000) + 1)/7);
+                return weekNo;
+            };
+            
+            const applyColorScheme = () => {
+                const week = getWeekNumber(new Date());
+                const palette = appData.colorPalettes[week % appData.colorPalettes.length];
+                elements.root.style.setProperty('--accent-1', palette.accent1);
+                elements.root.style.setProperty('--accent-2', palette.accent2);
+                
+                // Para o fundo aurora
+                const hexToRgb = hex => {
+                    let result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+                    return result ? `${parseInt(result[1], 16)}, ${parseInt(result[2], 16)}, ${parseInt(result[3], 16)}` : null;
+                }
+                elements.root.style.setProperty('--accent-1-trans', `rgba(${hexToRgb(palette.accent1)}, 0.15)`);
+                elements.root.style.setProperty('--accent-2-trans', `rgba(${hexToRgb(palette.accent2)}, 0.15)`);
+            };
 
             // --- Inicialização da Aplicação ---
             const init = () => {
                 const savedTheme = localStorage.getItem('theme') || 'dark';
                 applyTheme(savedTheme);
+                applyColorScheme();
                 
                 renderQuote();
                 renderAnnouncement();
@@ -1072,3 +1192,4 @@
     </script>
 </body>
 </html>
+
