@@ -1,1195 +1,714 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-    <meta charset="UTF-8">
-    <title>DS2A Hub Refatorado</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="Um hub central para organizar aulas, trabalhos e materiais do curso DS2A.">
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
-    <style>
-        /* --- Variáveis de Tema (Raiz) --- */
-        :root {
-            --bg-start: #0D1117;
-            --bg-end: #010409;
-            --glass-bg: rgba(22, 27, 34, 0.6);
-            --glass-border: rgba(139, 148, 158, 0.2);
-            --accent-1: #58A6FF;
-            --accent-2: #1F6FEB;
-            --accent-gradient: linear-gradient(135deg, var(--accent-1), var(--accent-2));
-            --text-primary: #f0f6fc;
-            --text-secondary: #8b949e;
-            --success: #3FB950;
-            --warning: #D29922;
-            --danger: #F85149;
-            --holiday: #A371F7;
-            --card-shadow: 0 16px 40px rgba(0, 0, 0, 0.4);
-            --radius-lg: 12px;
-            --radius-md: 8px;
-            --glass-blur: 16px;
-            --transition-speed: 0.4s;
-            /* Cores das Matérias */
-            --cor-geografia: #3FB950;
-            --cor-quimica: #BF39A1;
-            --cor-ingles: #D29922;
-            --cor-fisica: #F85149;
-            --cor-carreira: #58A6FF;
-            --cor-portugues: #A371F7;
-            --cor-historia: #E3B341;
-            --cor-biologia: #2AAA8A;
-            --cor-redes: #F77825;
-            --cor-matematica: #1F6FEB;
-            --cor-sociologia: #DB61A2;
-            --cor-processos: #3FB950;
-            --cor-logica: #A371F7;
-            --cor-edfisica: #F85149;
-            --cor-default: #8b949e;
-        }
+  <meta charset="UTF-8" />
+  <title>DS2A Hub Refatorado — Completo</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <!-- CSP (compatível com arquivo único + YouTube nocookie) -->
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; img-src 'self' data:; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; script-src 'self' 'unsafe-inline'; frame-src https://www.youtube-nocookie.com https://www.youtube.com; connect-src 'self'; media-src 'self' data:;" />
+  <meta name="description" content="Hub central DS2A para aulas, trabalhos, calendário e materiais." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --bg-start: #0d1117;
+      --bg-end: #010409;
+      --glass-bg: rgba(22,27,34,.6);
+      --glass-border: rgba(139,148,158,.2);
+      --text-primary:#f0f6fc; --text-secondary:#8b949e;
+      --accent-1:#58A6FF; --accent-2:#1F6FEB; /* será trocado semanalmente */
+      --accent-gradient: linear-gradient(135deg, var(--accent-1), var(--accent-2));
+      --success:#3FB950; --warning:#D29922; --danger:#F85149; --holiday:#A371F7;
+      --card-shadow: 0 16px 40px rgba(0,0,0,.4);
+      --radius-lg:16px; --radius-md:10px; --glass-blur:16px; --t: .35s;
+      --cor-geografia:#3FB950; --cor-quimica:#BF39A1; --cor-ingles:#D29922; --cor-fisica:#F85149; --cor-carreira:#58A6FF; --cor-portugues:#A371F7; --cor-historia:#E3B341; --cor-biologia:#2AAA8A; --cor-redes:#F77825; --cor-matematica:#1F6FEB; --cor-sociologia:#DB61A2; --cor-processos:#3FB950; --cor-logica:#A371F7; --cor-edfisica:#F85149; --cor-default:#8b949e;
+    }
+    *{box-sizing:border-box}
+    html{scroll-behavior:smooth}
+    body{margin:0;min-height:100vh;font-family:Inter,system-ui,Segoe UI,Roboto,Arial,sans-serif;background: radial-gradient(1200px 1200px at 20% -10%, rgba(88,166,255,.12), transparent 60%), radial-gradient(1200px 1200px at 120% 10%, rgba(31,111,235,.12), transparent 60%), linear-gradient(180deg,var(--bg-start),var(--bg-end));color:var(--text-primary);display:flex;justify-content:center;padding:18px}
+    .app{width:100%;max-width:980px}
+    h1{margin:0;font-size:1.8rem;font-weight:800;background:var(--accent-gradient);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+    .header{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:12px;margin-bottom:10px}
+    .tabs{display:flex;gap:8px;background:var(--glass-bg);backdrop-filter:blur(var(--glass-blur));-webkit-backdrop-filter:blur(var(--glass-blur));padding:6px;border-radius:999px;border:1px solid var(--glass-border)}
+    .tab{padding:8px 16px;border:none;border-radius:999px;background:transparent;color:var(--text-secondary);font-weight:700;cursor:pointer;transition:.2s}
+    .tab:hover{background:rgba(255,255,255,.08);color:var(--text-primary)}
+    .tab.active{background:var(--accent-2);color:#fff;box-shadow:0 6px 22px rgba(31,111,235,.35)}
+    .theme-toggle,.relax-toggle{width:40px;height:40px;border-radius:50%;border:1px solid var(--glass-border);background:var(--glass-bg);color:var(--text-primary);display:grid;place-items:center;cursor:pointer;transition:.2s}
+    .theme-toggle:hover,.relax-toggle:hover{transform:translateY(-2px);background:var(--accent-1);color:#010409}
+    .topbar{display:flex;gap:10px;align-items:center;justify-content:space-between;flex-wrap:wrap;color:var(--text-secondary);margin:8px 0 14px}
+    .progress-wrap{flex:1;min-width:220px;background:rgba(255,255,255,.06);border:1px solid var(--glass-border);border-radius:999px;overflow:hidden;height:10px;position:relative}
+    .progress-bar{height:100%;width:0;background:var(--accent-gradient);transition:width var(--t)}
+    .progress-label{font-size:.8rem;margin-left:8px}
+    .announcement{background:linear-gradient(135deg, rgba(88,166,255,.12), rgba(31,111,235,.18));border:1px solid var(--glass-border);border-radius:var(--radius-lg);padding:18px;position:relative;overflow:hidden}
+    .announcement h2{margin:0 0 6px;font-size:1.05rem}
+    .close-x{position:absolute;top:10px;right:10px;width:28px;height:28px;border-radius:50%;border:0;background:rgba(255,255,255,.08);color:var(--text-primary);cursor:pointer}
+    .reactions{margin-top:12px;display:flex;gap:8px}
+    .react{border:1px solid var(--glass-border);background:rgba(255,255,255,.06);border-radius:999px;padding:6px 10px;cursor:pointer}
+    .react.active{background:var(--accent-1);color:#010409;border-color:var(--accent-1)}
 
-        /* --- Estilos Globais --- */
-        *, *::before, *::after {
-            box-sizing: border-box;
-        }
+    /* --- Animações e Transições --- */
+    @keyframes fadeInUp { from { opacity: 0; transform: translateY(15px); } to { opacity: 1; transform: translateY(0); } }
+    .card { animation: fadeInUp 0.6s ease-out both; }
+    section[role="tabpanel"] { display: none; }
+    section[role="tabpanel"].active { display: block; animation: fadeInUp 0.5s ease-out; }
+    .is-past { text-decoration: line-through; opacity: 0.65; }
+    .important-note { font-size: .8rem; color: var(--warning); margin-bottom: 5px; border: 1px solid var(--warning); padding: 5px; border-radius: 8px; background: rgba(210, 153, 34, 0.1); }
+    #dayEvents.reloading > .event { animation: fadeInUp 0.5s ease-out both; }
+    #dayEvents.reloading > .event:nth-child(2) { animation-delay: .08s; }
+    #dayEvents.reloading > .event:nth-child(3) { animation-delay: .16s; }
+    
+    .card{background:var(--glass-bg);border:1px solid var(--glass-border);border-radius:var(--radius-lg);padding:18px;box-shadow:var(--card-shadow);backdrop-filter:blur(var(--glass-blur));-webkit-backdrop-filter:blur(var(--glass-blur))}
+    .grid{display:grid;gap:16px}
+    .grid.auto{grid-template-columns:repeat(auto-fit,minmax(240px,1fr))}
 
-        body {
-            font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
-            margin: 0;
-            min-height: 100vh;
-            background: var(--bg-end);
-            display: flex;
-            justify-content: center;
-            padding: 20px 16px;
-            color: var(--text-primary);
-            -webkit-font-smoothing: antialiased;
-            -moz-osx-font-smoothing: grayscale;
-            transition: background var(--transition-speed) ease-in-out;
-            overflow-x: hidden;
-            position: relative;
-        }
+    .calendar{padding:14px;border-radius:var(--radius-md);background:rgba(255,255,255,.04)}
+    .cal-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}
+    .cal-head button{width:32px;height:32px;border-radius:50%;border:1px solid var(--glass-border);background:rgba(255,255,255,.06);color:var(--text-primary);cursor:pointer}
+    .cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:6px}
+    .cal-day,.cal-date{text-align:center;padding:8px 4px;border-radius:8px;font-size:.85rem}
+    .cal-day{color:var(--text-secondary);font-weight:700}
+    .cal-date{cursor:pointer;color:var(--text-primary);position:relative}
+    .cal-date:hover{background:rgba(255,255,255,.08)}
+    .cal-date.today{background:var(--accent-gradient);color:#fff}
+    .cal-date.selected{outline:2px solid var(--accent-1)}
+    .cal-date.has-events::after{content:'';position:absolute;bottom:4px;left:50%;transform:translateX(-50%);width:5px;height:5px;border-radius:50%;background:var(--accent-1)}
+    .cal-date.is-holiday::after{background:var(--holiday)}
+    .event{display:flex;gap:8px;align-items:center;background:rgba(255,255,255,.06);padding:10px;border-radius:10px}
+    .etype{font-weight:700;font-size:.75rem;padding:4px 8px;border-radius:7px;color:#010409}
+    .etype.Prova{background:var(--danger)}
+    .etype.Trabalho{background:var(--warning)}
+    .etype.Feriado{background:var(--holiday)}
 
-        /* Fundo Aurora Animado */
-        body::before {
-            content: '';
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: 
-                radial-gradient(ellipse 40% 50% at 20% 30%, var(--accent-1-trans), transparent),
-                radial-gradient(ellipse 40% 50% at 80% 60%, var(--accent-2-trans), transparent);
-            z-index: -1;
-            animation: aurora-glow 20s linear infinite;
-            transition: background 1s ease-in-out;
-        }
+    /* --- Aulas: cards interativos --- */
+    .lessons-controls{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-bottom:8px}
+    select, input[type="text"], .btn{background:rgba(255,255,255,.08);border:1px solid var(--glass-border);color:var(--text-primary);border-radius:10px;padding:8px 10px}
+    .btn{cursor:pointer}
+    .summary{display:flex;gap:10px;align-items:center;color:var(--text-secondary);margin:8px 0}
+    .badge{font-size:.8rem;font-weight:700;padding:3px 8px;border-radius:8px;background:rgba(255,255,255,.08);align-self:flex-start}
+    .lesson-card { background: rgba(255, 255, 255, .06); border: 1px solid var(--glass-border); border-radius: 12px; padding: 12px; display: flex; flex-direction: column; gap: 8px; cursor: pointer; transition: transform .3s ease, box-shadow .3s ease; min-height: 90px; }
+    .lesson-card:hover { transform: translateY(-4px); box-shadow: 0 8px 20px rgba(0,0,0,.25); }
+    .lesson-header { display: flex; justify-content: space-between; align-items: center; }
+    .notes-prompt { color: var(--text-secondary); font-size: .8rem; margin-top: auto; }
+    .lesson-notes { display: none; margin-top: 8px; }
+    .lesson-card.is-open .lesson-notes { display: block; animation: fadeInUp .45s; cursor: default; }
+    .lesson-card.is-open .notes-prompt { display: none; }
+    .lesson-notes textarea { width: 100%; background:rgba(0,0,0,.2); border:1px solid var(--glass-border); color:var(--text-primary); border-radius:8px; padding:8px; margin-bottom: 8px; resize: vertical; }
+    .save-note { width: 100%; }
 
-        @keyframes aurora-glow {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
+    /* Trabalhos: timeline */
+    .timeline{position:relative;padding-left:12px}
+    .t-item{position:relative;margin:8px 0;padding:10px;border:1px solid var(--glass-border);border-radius:10px;background:rgba(255,255,255,.05)}
+    .t-item.pending::before{content:'';position:absolute;left:-6px;top:16px;width:10px;height:10px;border-radius:50%;background:var(--warning)}
+    .t-item.done::before{content:'';position:absolute;left:-6px;top:16px;width:10px;height:10px;border-radius:50%;background:var(--success)}
+    .tbar{height:8px;border-radius:999px;background:rgba(255,255,255,.08);overflow:hidden}
+    .tbar > span{display:block;height:100%;width:0;background:var(--accent-gradient);transition:width var(--t)}
+    .days{font-size:.8rem;color:var(--text-secondary)}
 
-        /* --- Estrutura Principal --- */
-        .app-container {
-            width: 100%;
-            max-width: 920px;
-        }
+    /* Relax: estrelas + player */
+    #stars{position:fixed;inset:0;pointer-events:none;opacity:0;transition:opacity .6s}
+    #relaxPanel{display:none;margin-top:10px}
+    .relax-on #stars{opacity:.9}
+    .relax-on #relaxPanel{display:block}
 
-        .header {
-            display: flex;
-            flex-wrap: wrap;
-            align-items: center;
-            justify-content: space-between;
-            gap: 16px;
-            margin-bottom: 12px;
-            animation: fadeInDown 0.7s 0.1s ease-out backwards;
-        }
+    /* Busca rápida calendário */
+    .searchbox{position:relative}
+    .results{position:absolute;z-index:10;left:0;right:0;background:var(--glass-bg);border:1px solid var(--glass-border);border-radius:10px;max-height:160px;overflow:auto}
+    .res{padding:8px;cursor:pointer}
+    .res:hover{background:rgba(255,255,255,.08)}
 
-        @keyframes fadeInDown {
-            from { opacity: 0; transform: translateY(-20px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
+    /* Materiais */
+    .materials{display:grid;gap:12px;grid-template-columns:repeat(auto-fit,minmax(240px,1fr))}
+    .mat{display:flex;gap:12px;align-items:center;background:rgba(255,255,255,.06);padding:12px;border-radius:12px;border:1px solid var(--glass-border)}
+    .mat .icon{font-size:1.4rem;background:var(--accent-gradient);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+    .link{color:var(--accent-1);text-decoration:underline}
 
-        h1 {
-            margin: 0;
-            font-size: 1.7rem;
-            font-weight: 800;
-            background: var(--accent-gradient);
-            -webkit-background-clip: text;
-            background-clip: text;
-            -webkit-text-fill-color: transparent;
-            animation: gradient-move 4s ease-in-out infinite alternate;
-        }
+    /* Notificações */
+    .notify{position:fixed;top:12px;left:50%;transform:translateX(-50%);display:flex;gap:8px;flex-direction:column;z-index:50}
+    .note{background:rgba(0,0,0,.8);padding:10px 14px;border-radius:10px;border:1px solid var(--glass-border)}
 
-        @keyframes gradient-move {
-            0% { background-position: 0% 50%; }
-            100% { background-position: 100% 50%; }
-        }
-        
-        .header-controls {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-        }
-        
-        /* --- Frase do Dia e Contagem Regressiva --- */
-        .top-info-container {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            flex-wrap: wrap;
-            gap: 10px;
-            margin-bottom: 20px;
-            color: var(--text-secondary);
-            font-size: 0.9rem;
-            animation: fadeIn 1s 0.5s ease-out backwards;
-        }
-        .quote-container {
-            font-style: italic;
-            flex-grow: 1;
-        }
-        .bimester-countdown {
-            font-weight: 600;
-            background: rgba(255,255,255,0.05);
-            padding: 6px 12px;
-            border-radius: var(--radius-md);
-        }
-
-        /* --- Navegação por Abas --- */
-        .tabs-nav {
-            background: var(--glass-bg);
-            border-radius: 999px;
-            padding: 6px;
-            display: flex;
-            gap: 8px;
-            align-items: center;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.2);
-            border: 1px solid var(--glass-border);
-            backdrop-filter: blur(var(--glass-blur));
-            -webkit-backdrop-filter: blur(var(--glass-blur));
-        }
-
-        .tab-btn {
-            padding: 8px 18px;
-            border: none;
-            cursor: pointer;
-            font-weight: 600;
-            font-size: 0.9rem;
-            color: var(--text-secondary);
-            border-radius: 999px;
-            background: transparent;
-            transition: all 0.3s ease;
-        }
-
-        .tab-btn:hover {
-            color: var(--text-primary);
-            background: rgba(255, 255, 255, 0.08);
-        }
-
-        .tab-btn.active {
-            color: #fff;
-            background: var(--accent-2);
-            box-shadow: 0 5px 20px rgba(31, 111, 235, 0.3);
-            transform: scale(1.05);
-        }
-
-        /* --- Botão de Tema --- */
-        .theme-toggle {
-            background: var(--glass-bg);
-            border: 1px solid var(--glass-border);
-            color: var(--text-primary);
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-            cursor: pointer;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.2);
-            backdrop-filter: blur(6px);
-            -webkit-backdrop-filter: blur(6px);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            transition: all 0.3s ease;
-        }
-
-        .theme-toggle:hover {
-            transform: translateY(-3px) scale(1.1);
-            background: var(--accent-1);
-            color: #010409;
-            box-shadow: 0 8px 25px rgba(88, 166, 255, 0.3);
-        }
-        
-        .theme-toggle svg {
-            width: 18px;
-            height: 18px;
-        }
-        
-        /* --- Aviso Principal --- */
-        .main-announcement {
-            background: linear-gradient(135deg, rgba(88, 166, 255, 0.1), rgba(31, 111, 235, 0.15));
-            border: 1px solid var(--glass-border);
-            border-radius: var(--radius-lg);
-            padding: 20px;
-            margin-bottom: 20px;
-            position: relative;
-            overflow: hidden;
-            animation: fadeInTab 0.6s 0.2s ease-out backwards;
-            transition: all 0.5s ease;
-        }
-        .main-announcement.hidden {
-            opacity: 0;
-            transform: scale(0.95);
-            height: 0;
-            padding-top: 0;
-            padding-bottom: 0;
-            margin-bottom: 0;
-            border: none;
-        }
-        .announcement-content {
-            padding-right: 40px; /* Espaço para o botão de fechar */
-        }
-        .main-announcement h2 {
-            font-size: 1.2rem;
-            margin-bottom: 10px;
-            border: none;
-            padding-left: 0;
-        }
-        .main-announcement p {
-            margin: 0;
-            color: var(--text-secondary);
-            font-size: 0.95rem;
-        }
-        .close-announcement-btn {
-            position: absolute;
-            top: 12px;
-            right: 12px;
-            background: rgba(0,0,0,0.2);
-            border: none;
-            color: var(--text-primary);
-            width: 28px;
-            height: 28px;
-            border-radius: 50%;
-            cursor: pointer;
-            font-weight: bold;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            transition: background 0.2s;
-        }
-        .close-announcement-btn:hover {
-            background: rgba(0,0,0,0.4);
-        }
-        
-        /* --- Reações e Animação de Partículas --- */
-        .reactions-container {
-            margin-top: 16px;
-            display: flex;
-            gap: 10px;
-        }
-        .reaction-btn {
-            background: rgba(255, 255, 255, 0.05);
-            border: 1px solid var(--glass-border);
-            border-radius: 999px;
-            padding: 6px 12px;
-            cursor: pointer;
-            transition: all 0.2s ease;
-            font-size: 0.9rem;
-            position: relative;
-        }
-        .reaction-btn:hover {
-            transform: scale(1.1);
-            background: rgba(255, 255, 255, 0.1);
-        }
-        .reaction-btn.active {
-            background: var(--accent-1);
-            color: #010409;
-            border-color: var(--accent-1);
-        }
-        .particle {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            width: 4px;
-            height: 4px;
-            border-radius: 50%;
-            background-color: var(--accent-1);
-            opacity: 0;
-            animation: explode 0.6s ease-out forwards;
-        }
-        @keyframes explode {
-            0% { transform: translate(-50%, -50%) scale(1); opacity: 1; }
-            100% { transform: translate(-50%, -50%) scale(0); opacity: 0; }
-        }
-
-        /* --- Conteúdo das Abas e Transições --- */
-        .tab-content {
-            display: none;
-        }
-        .tab-content.active {
-            display: block;
-            animation: pageEnter 0.5s ease-out;
-        }
-        .tab-content.is-exiting {
-            animation: pageExit 0.3s ease-in;
-        }
-
-        @keyframes pageEnter {
-            from { opacity: 0; transform: translateY(20px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-        @keyframes pageExit {
-            from { opacity: 1; transform: translateY(0); }
-            to { opacity: 0; transform: translateY(-20px); }
-        }
-
-        .content-card {
-            background: var(--glass-bg);
-            border-radius: var(--radius-lg);
-            border: 1px solid var(--glass-border);
-            padding: 20px;
-            box-shadow: var(--card-shadow);
-            backdrop-filter: blur(var(--glass-blur));
-            -webkit-backdrop-filter: blur(var(--glass-blur));
-        }
-        
-        h2 {
-            margin-top: 0;
-            margin-bottom: 20px;
-            font-size: 1.2rem;
-            color: var(--text-primary);
-            font-weight: 700;
-        }
-
-        /* --- Calendário e Eventos --- */
-        .calendar {
-            padding: 14px;
-            border-radius: var(--radius-md);
-            background: rgba(0,0,0,0.1);
-        }
-        .calendar-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 12px;
-        }
-        .calendar-header button {
-            width: 32px;
-            height: 32px;
-            background: rgba(255,255,255,0.05);
-            border: 1px solid var(--glass-border);
-            color: var(--text-primary);
-            border-radius: 50%;
-            cursor: pointer;
-            transition: all 0.2s ease;
-        }
-        .calendar-header button:hover { transform: scale(1.1); background: var(--accent-2); }
-        .calendar-header span { font-weight: 700; font-size: 1rem; }
-        .calendar-grid {
-            display: grid;
-            grid-template-columns: repeat(7, 1fr);
-            gap: 6px;
-        }
-        .calendar-day, .calendar-date {
-            text-align: center;
-            padding: 8px 4px;
-            border-radius: 6px;
-            font-size: 0.85rem;
-            position: relative;
-        }
-        .calendar-day { color: var(--text-secondary); font-weight: 600; }
-        .calendar-date {
-            cursor: pointer;
-            color: var(--text-primary);
-            transition: all 0.2s ease;
-        }
-        .calendar-date.other-month { color: var(--text-secondary); opacity: 0.5; }
-        .calendar-date:not(.other-month):hover { background: rgba(255,255,255,0.08); transform: scale(1.1); }
-        .calendar-date.today {
-            background: var(--accent-gradient);
-            color: #fff;
-            font-weight: 700;
-        }
-        .calendar-date.selected {
-            outline: 2px solid var(--accent-1);
-            outline-offset: 2px;
-        }
-        .calendar-date.has-events::after {
-            content: '';
-            position: absolute;
-            bottom: 4px;
-            left: 50%;
-            transform: translateX(-50%);
-            width: 4px;
-            height: 4px;
-            border-radius: 50%;
-            background-color: var(--accent-1);
-        }
-        .calendar-date.is-holiday::after { background-color: var(--holiday); }
-        #dailyEventsContainer {
-            margin-top: -10px;
-            margin-bottom: 20px;
-            padding: 18px;
-            background: rgba(0,0,0,0.1);
-            border-radius: 0 0 var(--radius-lg) var(--radius-lg);
-            transition: all 0.3s ease;
-        }
-        #dailyEventsContainer:empty {
-            padding: 0;
-            border: none;
-        }
-        .event-list { list-style: none; padding: 0; margin: 0; }
-        .event-item {
-            background: rgba(0,0,0,0.2);
-            padding: 10px;
-            border-radius: var(--radius-md);
-            margin-bottom: 8px;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            animation: fadeIn 0.5s ease;
-        }
-        @keyframes fadeIn { from { opacity: 0; transform: translateX(-10px); } to { opacity: 1; transform: translateX(0); } }
-        .event-item.is-done {
-            opacity: 0.6;
-            text-decoration: line-through;
-        }
-        .event-item:last-child { margin-bottom: 0; }
-        .event-type {
-            font-weight: 600;
-            font-size: 0.8rem;
-            padding: 4px 8px;
-            border-radius: 6px;
-            color: #010409;
-            flex-shrink: 0;
-        }
-        .event-type.prova { background: var(--danger); }
-        .event-type.trabalho { background: var(--warning); }
-        .event-type.feriado { background: var(--holiday); }
-        
-        /* --- Aulas do Dia --- */
-        #dailyLessonsContainer {
-            min-height: 100px;
-        }
-        .daily-lesson-card {
-            animation: fadeIn 0.5s ease;
-        }
-        .daily-lesson-card h3 {
-            margin: 0 0 16px 0;
-            font-size: 1.15rem;
-            color: var(--text-primary);
-        }
-        .daily-lesson-card ul {
-            list-style: none;
-            padding: 0;
-            margin: 0;
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
-        }
-        .daily-lesson-card li {
-            background: rgba(0,0,0,0.15);
-            padding: 12px 14px;
-            border-radius: 8px;
-            font-size: 0.9rem;
-            color: var(--text-secondary);
-            border-left: 3px solid var(--cor-default);
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-        .lesson-count {
-            font-size: 0.85rem;
-            font-weight: 700;
-            color: var(--text-primary);
-        }
-        .no-lessons-message {
-            text-align: center;
-            padding: 20px;
-            color: var(--text-secondary);
-            font-style: italic;
-        }
-
-        /* --- Lista de Trabalhos e Materiais --- */
-        .list-container {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-            gap: 16px;
-        }
-        .item-card {
-            background: rgba(0,0,0,0.15);
-            border-radius: var(--radius-md);
-            padding: 16px;
-            border: 1px solid transparent;
-            transition: all 0.25s ease;
-            display: flex;
-            flex-direction: column;
-            gap: 8px;
-        }
-        .item-card:hover {
-            transform: translateY(-6px);
-            border-color: var(--accent-1);
-            box-shadow: 0 10px 30px rgba(88, 166, 255, 0.1);
-        }
-        .item-title {
-            font-weight: 600;
-            color: var(--text-primary);
-            font-size: 0.95rem;
-        }
-        .item-status {
-            font-size: 0.8rem;
-            font-weight: 600;
-            border-radius: 6px;
-            padding: 4px 10px;
-            align-self: flex-start;
-        }
-        .item-status.pending {
-            background: var(--warning);
-            color: #010409;
-            animation: pulse 1.5s infinite alternate;
-        }
-        .item-status.done {
-            background: var(--success);
-            color: #010409;
-        }
-        @keyframes pulse {
-            from { opacity: 1; }
-            to { opacity: 0.8; }
-        }
-        .material-card {
-            flex-direction: row;
-            align-items: center;
-            gap: 16px;
-        }
-        .material-icon {
-            font-size: 1.5rem;
-            background: var(--accent-gradient);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-        }
-        .material-desc {
-            color: var(--text-secondary);
-            font-size: 0.85rem;
-        }
-        
-        /* --- Quick Link --- */
-        .quick-link-container {
-            margin-top: 24px;
-        }
-        .quick-link-input {
-            width: 100%;
-            background: rgba(0,0,0,0.2);
-            border: 1px solid var(--glass-border);
-            border-radius: var(--radius-md);
-            padding: 12px;
-            color: var(--text-primary);
-            font-size: 0.9rem;
-            margin-bottom: 10px;
-        }
-        .quick-link-btn {
-            background: var(--accent-2);
-            color: #fff;
-            border: none;
-            padding: 10px 16px;
-            border-radius: var(--radius-md);
-            cursor: pointer;
-            font-weight: 600;
-            transition: background 0.2s;
-        }
-        .quick-link-btn:hover {
-            background: var(--accent-1);
-        }
-        
-        /* --- Busca Calendário --- */
-        .calendar-search-container {
-            position: relative;
-            margin-bottom: 12px;
-        }
-        #searchInput {
-            width: 100%;
-            background: rgba(0,0,0,0.2);
-            border: 1px solid var(--glass-border);
-            border-radius: var(--radius-md);
-            padding: 10px;
-            color: var(--text-primary);
-            font-size: 0.9rem;
-        }
-        #searchResults {
-            position: absolute;
-            width: 100%;
-            background: var(--glass-bg);
-            border: 1px solid var(--glass-border);
-            border-radius: var(--radius-md);
-            margin-top: 4px;
-            max-height: 150px;
-            overflow-y: auto;
-            z-index: 10;
-        }
-        .search-result-item {
-            padding: 10px;
-            cursor: pointer;
-            transition: background 0.2s;
-        }
-        .search-result-item:hover {
-            background: rgba(255,255,255,0.1);
-        }
-        .search-result-item small {
-            color: var(--text-secondary);
-            margin-left: 8px;
-        }
-
-
-        /* --- Responsividade --- */
-        @media (max-width: 768px) {
-            body { padding: 20px 12px; }
-            h1 { font-size: 1.4rem; }
-            .header { flex-direction: column; align-items: flex-start; }
-            .tabs-nav { width: 100%; justify-content: space-around; }
-            .tab-btn { padding: 8px 12px; flex-grow: 1; text-align: center; }
-            .list-container { grid-template-columns: 1fr; }
-        }
-    </style>
+    @media (max-width:768px){
+      .grid.auto{grid-template-columns:1fr}
+    }
+  </style>
 </head>
-<body class="dark-theme">
+<body>
+  <canvas id="stars"></canvas>
+  <div class="notify" id="notify"></div>
 
-    <div class="app-container">
-        <header class="header">
-            <h1>DS2A Hub</h1>
-            <div class="header-controls">
-                <nav class="tabs-nav" role="tablist" aria-label="Navegação Principal">
-                    <button class="tab-btn active" onclick="showTab(0)">Aulas</button>
-                    <button class="tab-btn" onclick="showTab(1)">Trabalhos</button>
-                    <button class="tab-btn" onclick="showTab(2)">Materiais</button>
-                </nav>
-                <button class="theme-toggle" id="themeToggleBtn" title="Alternar tema">
-                    <svg class="moon-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path fill-rule="evenodd" d="M9.528 1.718a.75.Uma nova semana começa!.75 0 01.162.819A8.97 8.97 0 009 6a9 9 0 009 9 8.97 8.97 0 003.463-.69.75.75 0 01.981.98 10.503 10.503 0 01-9.694 6.46c-5.799 0-10.5-4.701-10.5-10.5 0-4.368 2.667-8.112 6.46-9.694a.75.75 0 01.818.162z" clip-rule="evenodd"></path></svg>
-                    <svg class="sun-icon" style="display:none;" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2.25a.75.75 0 01.75.75v2.25a.75.75 0 01-1.5 0V3a.75.75 0 01.75-.75zM7.5 12a4.5 4.5 0 119 0 4.5 4.5 0 01-9 0zM18.894 6.106a.75.75 0 010 1.06l-1.591 1.59a.75.75 0 11-1.06-1.06l1.59-1.59a.75.75 0 011.06 0zM21.75 12a.75.75 0 01-.75.75h-2.25a.75.75 0 010-1.5h2.25a.75.75 0 01.75.75zM17.836 17.836a.75.75 0 01-1.06 0l-1.59-1.591a.75.75 0 111.06-1.06l1.591 1.59a.75.75 0 010 1.06zM12 21a.75.75 0 01-.75-.75v-2.25a.75.75 0 011.5 0v2.25A.75.75 0 0112 21zM5.106 17.836a.75.75 0 010-1.06l1.591-1.59a.75.75 0 011.06 1.06l-1.59 1.59a.75.75 0 01-1.06 0zM3 12a.75.75 0 01.75-.75h2.25a.75.75 0 010 1.5H3.75A.75.75 0 013 12zM6.106 6.106a.75.75 0 011.06 0l1.59 1.591a.75.75 0 11-1.06 1.06l-1.59-1.59a.75.75 0 010-1.06z"></path></svg>
-                </button>
-            </div>
-        </header>
+  <div class="app" id="app">
+    <header class="header">
+      <h1>DS2A Hub</h1>
+      <div style="display:flex;gap:10px;align-items:center">
+        <nav class="tabs" role="tablist" aria-label="Navegação Principal">
+          <button class="tab active" data-tab="aulas">Aulas</button>
+          <button class="tab" data-tab="trabalhos">Trabalhos</button>
+          <button class="tab" data-tab="materiais">Materiais</button>
+        </nav>
+        <button class="relax-toggle" id="relaxBtn" title="Modo Relax">🌙</button>
+        <button class="theme-toggle" id="themeBtn" title="Alternar tema">☀️</button>
+      </div>
+    </header>
 
-        <div class="top-info-container">
-            <div class="quote-container" id="quoteContainer"></div>
-            <div class="bimester-countdown" id="bimesterCountdown"></div>
-        </div>
-        <div class="main-announcement" id="mainAnnouncement"></div>
-
-        <main>
-            <!-- Aba de Aulas -->
-            <section id="tab-content-0" class="tab-content active" role="tabpanel">
-                <div class="content-card">
-                    <div class="calendar-search-container">
-                        <input type="text" id="searchInput" placeholder="Buscar evento ou data (ex: Prova, 2025-08-28)...">
-                        <div id="searchResults"></div>
-                    </div>
-                    <div class="calendar-wrap">
-                        <div id="calendar" class="calendar"></div>
-                    </div>
-                    <div id="dailyEventsContainer"></div>
-                </div>
-                <div class="content-card" style="margin-top: 20px;">
-                    <h2>Aulas do Dia</h2>
-                    <div id="dailyLessonsContainer"></div>
-                </div>
-            </section>
-
-            <!-- Aba de Trabalhos -->
-            <section id="tab-content-1" class="tab-content">
-                <div class="content-card">
-                    <h2>Trabalhos Pendentes</h2>
-                    <div class="list-container" id="pendingAssignments"></div>
-                </div>
-                <div class="content-card" style="margin-top: 20px;">
-                    <h2>Trabalhos Concluídos</h2>
-                    <div class="list-container" id="doneAssignments"></div>
-                </div>
-            </section>
-
-            <!-- Aba de Materiais -->
-            <section id="tab-content-2" class="tab-content">
-                 <div class="content-card">
-                    <h2>Ferramentas & Recursos</h2>
-                    <div id="maintenanceMessage" style="text-align: center; color: var(--text-secondary); padding: 10px 0;">A antiga lista de materiais está em manutenção.</div>
-                    <div class="list-container" id="materialsContainer"></div>
-                    <div class="quick-link-container">
-                        <h2 style="font-size: 1.1rem; margin-top: 24px; margin-bottom: 12px;">Link Rápido</h2>
-                        <input type="text" id="quickLinkInput" class="quick-link-input" placeholder="Cole um link útil aqui...">
-                        <button id="saveQuickLinkBtn" class="quick-link-btn">Salvar Link</button>
-                    </div>
-                </div>
-            </section>
-        </main>
+    <div class="topbar">
+      <div class="progress-wrap" title="Progresso do bimestre"><div class="progress-bar" id="bimBar"></div></div>
+      <span class="progress-label" id="bimLabel">0%</span>
+      <span id="quote"></span>
     </div>
 
-    <script>
-        document.addEventListener('DOMContentLoaded', () => {
-            // =================================================================================
-            //  1. CENTRAL DE DADOS - Edite aqui para atualizar o conteúdo do site
-            // =================================================================================
-            const appData = {
-                bimesterEndDate: '2025-09-30', // Fim do 3º Bimestre
-                announcement: {
-                    id: 'anuncio-setembro', // ID único para o aviso
-                    title: "Foco total em Setembro!",
-                    message: "Trabalho de Inglês concluído com sucesso! Agora, preparem-se para a entrega de Educação Física na próxima semana. Vamos fechar o bimestre com chave de ouro!"
-                },
-                lessons: {
-                    1: { day: "Segunda-feira", subjects: [
-                        { name: "Geografia", color: "geografia" }, { name: "Química", color: "quimica" }, { name: "Inglês", color: "ingles" }, { name: "Física", color: "fisica" }, { name: "Carreira", count: 3, color: "carreira" }
-                    ]},
-                    2: { day: "Terça-feira", subjects: [
-                        { name: "Português", color: "portugues" }, { name: "História", color: "historia" }, { name: "Biologia", color: "biologia" }, { name: "Geografia", color: "geografia" }, { name: "Redes", count: 3, color: "redes" }
-                    ]},
-                    3: { day: "Quarta-feira", subjects: [
-                        { name: "Matemática", count: 2, color: "matematica" }, { name: "Biologia", color: "biologia" }, { name: "Sociologia", color: "sociologia" }, { name: "Processos", count: 3, color: "processos" }
-                    ]},
-                    4: { day: "Quinta-feira", subjects: [
-                        { name: "Matemática", color: "matematica" }, { name: "Inglês", color: "ingles" }, { name: "Ed. Física", color: "edfisica" }, { name: "Lógica", count: 2, color: "logica" }, { name: "Matemática", color: "matematica" }, { name: "Português", color: "portugues" }
-                    ]},
-                    5: { day: "Sexta-feira", subjects: [
-                        { name: "Sociologia", color: "sociologia" }, { name: "Lógica", count: 2, color: "logica" }, { name: "Física", color: "fisica" }, { name: "Português", color: "portugues" }, { name: "História", color: "historia" }, { name: "Química", color: "quimica" }
-                    ]}
-                },
-                assignments: [
-                    { title: "Educação Física", status: 'pending', date: '2025-09-04' },
-                    { title: "Carreira", status: 'pending', date: '2025-09-01' },
-                    { title: "Inglês", status: 'done', date: '2025-08-28' },
-                    { title: "Física", status: 'done' }
-                ],
-                events: {
-                    '2025-09-01': [ { type: 'Trabalho', title: 'Entrega do Trabalho de Carreira' } ],
-                    '2025-09-04': [ { type: 'Trabalho', title: 'Entrega do Trabalho de Educação Física' } ],
-                    '2025-08-28': [
-                        { type: 'Prova', title: 'Prova de Matemática' },
-                        { type: 'Trabalho', title: 'Entrega do Trabalho de Inglês' }
-                    ],
-                    // Feriados Nacionais de 2025 (Setembro em diante)
-                    '2025-09-07': [ { type: 'Feriado', title: 'Independência do Brasil' } ],
-                    '2025-10-12': [ { type: 'Feriado', title: 'Nossa Senhora Aparecida' } ],
-                    '2025-11-02': [ { type: 'Feriado', title: 'Finados' } ],
-                    '2025-11-15': [ { type: 'Feriado', title: 'Proclamação da República' } ],
-                    '2025-11-20': [ { type: 'Feriado', title: 'Dia da Consciência Negra' } ],
-                    '2025-12-25': [ { type: 'Feriado', title: 'Natal' } ]
-                },
-                materials: [
-                    { icon: '🎨', title: "Figma", desc: "Design de interfaces e protótipos." },
-                    { icon: '💻', title: "VS Code", desc: "Editor de código fonte popular." },
-                    { icon: '📦', title: "GitHub", desc: "Plataforma de hospedagem de código." },
-                    { icon: '🧠', title: "Stack Overflow", desc: "Comunidade para tirar dúvidas." }
-                ],
-                quotes: [
-                    "A disciplina é a ponte entre metas e realizações.",
-                    "Comece onde você está. Use o que você tem. Faça o que você pode.",
-                    "O sucesso é a soma de pequenos esforços repetidos dia após dia.",
-                    "Acredite em si mesmo e tudo será possível.",
-                    "O futuro pertence àqueles que acreditam na beleza de seus sonhos."
-                ],
-                colorPalettes: [
-                    { accent1: '#58A6FF', accent2: '#1F6FEB' }, // Azul
-                    { accent1: '#3FB950', accent2: '#2AAA8A' }, // Verde
-                    { accent1: '#BF39A1', accent2: '#A371F7' }, // Roxo/Rosa
-                    { accent1: '#F77825', accent2: '#D29922' }, // Laranja/Amarelo
-                ]
-            };
+    <section class="announcement card" id="announce"></section>
 
-            // =================================================================================
-            //  2. LÓGICA DA APLICAÇÃO
-            // =================================================================================
-            
-            const elements = {
-                root: document.documentElement,
-                body: document.body,
-                tabButtons: document.querySelectorAll('.tab-btn'),
-                tabContents: document.querySelectorAll('.tab-content'),
-                themeToggleBtn: document.getElementById('themeToggleBtn'),
-                sunIcon: document.querySelector('.sun-icon'),
-                moonIcon: document.querySelector('.moon-icon'),
-                calendarEl: document.getElementById('calendar'),
-                dailyEventsContainer: document.getElementById('dailyEventsContainer'),
-                dailyLessonsContainer: document.getElementById('dailyLessonsContainer'),
-                pendingAssignments: document.getElementById('pendingAssignments'),
-                doneAssignments: document.getElementById('doneAssignments'),
-                materialsContainer: document.getElementById('materialsContainer'),
-                announcementContainer: document.getElementById('mainAnnouncement'),
-                quoteContainer: document.getElementById('quoteContainer'),
-                quickLinkInput: document.getElementById('quickLinkInput'),
-                saveQuickLinkBtn: document.getElementById('saveQuickLinkBtn'),
-                searchInput: document.getElementById('searchInput'),
-                searchResults: document.getElementById('searchResults'),
-                bimesterCountdown: document.getElementById('bimesterCountdown'),
-            };
+    <main>
+      <!-- AULAS -->
+      <section class="card active" id="tab-aulas" role="tabpanel">
+        <div class="grid" style="grid-template-columns:1.1fr .9fr;align-items:start">
+          <div>
+            <div class="searchbox" style="margin-bottom:10px">
+              <input id="searchCal" type="text" placeholder="Buscar evento/data (ex: Prova, 2025-09-04)" style="width:100%" />
+              <div class="results" id="results"></div>
+            </div>
+            <div class="calendar" id="calendar"></div>
+            <div id="dayEvents" style="margin-top:10px" class="grid"></div>
+          </div>
+          <div>
+            <div class="lessons-controls">
+              <select id="viewMode">
+                <option value="hoje">Hoje</option>
+                <option value="semana">Semana</option>
+              </select>
+              <select id="subjectFilter"><option value="">Todas as matérias</option></select>
+              <button class="btn" id="clearNotes">Limpar anotações</button>
+            </div>
+            <div class="summary" id="lessonsSummary">—</div>
+            <div class="grid auto" id="lessons"></div>
+          </div>
+        </div>
+      </section>
 
-            const state = {
-                today: new Date(),
-                selectedDate: new Date(),
-                currentMonth: new Date().getMonth(),
-                currentYear: new Date().getFullYear(),
-                activeTab: 0,
-            };
+      <!-- TRABALHOS -->
+      <section class="card" id="tab-trabalhos" role="tabpanel">
+        <h2 style="margin:0 0 10px">Timeline de prazos</h2>
+        <div class="timeline" id="tlPending"></div>
+        <h2 style="margin:16px 0 10px">Concluídos</h2>
+        <div class="grid auto" id="tlDone"></div>
+        <div id="relaxPanel" class="card">
+          <h3 style="margin:0 0 8px">Modo Relax (Lofi)</h3>
+          <div style="position:relative;padding-top:56.25%">
+            <iframe title="Lofi" src="https://www.youtube-nocookie.com/embed/jfKfPfyJRdk?autoplay=0&controls=1" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen style="position:absolute;inset:0;width:100%;height:100%;border:0;border-radius:12px"></iframe>
+          </div>
+        </div>
+      </section>
 
-            // --- Lógica das Abas ---
-            window.showTab = (index) => {
-                if (index === state.activeTab) return;
-                const currentTab = elements.tabContents[state.activeTab];
-                const nextTab = elements.tabContents[index];
-                
-                currentTab.classList.add('is-exiting');
-                
-                currentTab.addEventListener('animationend', () => {
-                    currentTab.classList.remove('active', 'is-exiting');
-                    elements.tabButtons[state.activeTab].classList.remove('active');
+      <!-- MATERIAIS -->
+      <section class="card" id="tab-materiais" role="tabpanel">
+        <h2 style="margin:0 0 12px">Ferramentas & Recursos</h2>
+        <div class="materials" id="materials"></div>
+        <div class="grid" style="grid-template-columns:1fr .9fr;margin-top:14px">
+          <div class="card">
+            <h3 style="margin:0 0 8px">Pesquisa rápida</h3>
+            <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:8px">
+              <select id="engine"><option value="scholar">Google Acadêmico</option><option value="youtube">YouTube</option></select>
+              <input id="qExt" type="text" placeholder="Digite o termo..." style="flex:1" />
+              <button class="btn" id="goExt">Buscar</button>
+            </div>
+            <div class="card">
+              <h3 style="margin:0 0 8px">Link Rápido</h3>
+              <div style="display:flex;gap:8px"><input id="quick" type="text" placeholder="Cole um link útil..." style="flex:1" /><button id="saveQuick" class="btn">Salvar</button></div>
+              <div id="quickList" style="margin-top:8px"></div>
+            </div>
+          </div>
+          <div class="card">
+            <h3 style="margin:0 0 8px">Currículo base (.txt)</h3>
+            <p class="muted" style="color:var(--text-secondary);margin:0 0 8px">Baixe e edite no seu editor favorito.</p>
+            <button class="btn" id="cvBtn">Baixar currículo.txt</button>
+          </div>
+        </div>
+      </section>
+    </main>
+  </div>
 
-                    nextTab.classList.add('active');
-                    elements.tabButtons[index].classList.add('active');
-                    state.activeTab = index;
-                }, { once: true });
-            };
+  <script>
+  document.addEventListener('DOMContentLoaded', () => {
+    // ===================== 1) DADOS =====================
+    const appData = {
+      bimesterStartDate: '2025-08-01',
+      bimesterEndDate:   '2025-09-30',
+      announcement: { id:'anuncio-setembro', title:'Foco total em Setembro!', message:'Trabalho de Inglês concluído com sucesso! Prepare-se para a entrega de Educação Física na próxima semana. Vamos fechar o bimestre com chave de ouro!' },
+      lessons: {
+        1:{ day:'Segunda-feira', subjects:[
+          { name:'Geografia', color:'geografia' }, { name:'Química', color:'quimica' }, { name:'Inglês', color:'ingles' }, { name:'Física', color:'fisica' }, { name:'Carreira', count:3, color:'carreira', room:'Lab 2' }
+        ]},
+        2:{ day:'Terça-feira', subjects:[
+          { name:'Português', color:'portugues' }, { name:'História', color:'historia' }, { name:'Biologia', color:'biologia' }, { name:'Geografia', color:'geografia' }, { name:'Redes', count:3, color:'redes', room:'Lab 1' }
+        ]},
+        3:{ day:'Quarta-feira', subjects:[
+          { name:'Matemática', count:2, color:'matematica' }, { name:'Biologia', color:'biologia' }, { name:'Sociologia', color:'sociologia' }, { name:'Processos', count:3, color:'processos', room:'Oficina' }
+        ]},
+        4:{ day:'Quinta-feira', subjects:[
+          { name:'Matemática', color:'matematica' }, { name:'Inglês', color:'ingles' }, { name:'Ed. Física', color:'edfisica' }, { name:'Lógica', count:2, color:'logica' }, { name:'Matemática', color:'matematica' }, { name:'Português', color:'portugues' }
+        ]},
+        5:{ day:'Sexta-feira', subjects:[
+          { name:'Sociologia', color:'sociologia' }, { name:'Lógica', count:2, color:'logica' }, { name:'Física', color:'fisica' }, { name:'Português', color:'portugues' }, { name:'História', color:'historia' }, { name:'Química', color:'quimica' }
+        ]}
+      },
+      assignments: [
+        { title:'Educação Física', status:'pending', date:'2025-09-04' },
+        { title:'Carreira', status:'pending', date:'2025-09-01' },
+        { title:'Inglês', status:'done',    date:'2025-08-28' },
+        { title:'Física', status:'done' }
+      ],
+      events: {
+        '2025-09-01':[ { type:'Trabalho', title:'Entrega do Trabalho de Carreira' } ],
+        '2025-09-04':[ { type:'Trabalho', title:'Entrega do Trabalho de Educação Física' } ],
+        '2025-08-28':[ { type:'Prova', title:'Prova de Matemática' }, { type:'Trabalho', title:'Entrega do Trabalho de Inglês' } ],
+        '2025-09-07':[ { type:'Feriado', title:'Independência do Brasil' } ],
+        '2025-10-12':[ { type:'Feriado', title:'Nossa Senhora Aparecida' } ],
+        '2025-11-02':[ { type:'Feriado', title:'Finados' } ],
+        '2025-11-15':[ { type:'Feriado', title:'Proclamação da República' } ],
+        '2025-11-20':[ { type:'Feriado', title:'Dia da Consciência Negra' } ],
+        '2025-12-25':[ { type:'Feriado', title:'Natal' } ]
+      },
+      materials: [
+        { icon:'🎨', title:'Figma', desc:'Design de interfaces e protótipos.' },
+        { icon:'💻', title:'VS Code', desc:'Editor de código.' },
+        { icon:'📦', title:'GitHub', desc:'Hospedagem de código.' },
+        { icon:'🧠', title:'Stack Overflow', desc:'Comunidade para dúvidas.' }
+      ],
+      quotes:[
+        'A disciplina é a ponte entre metas e realizações.',
+        'Comece onde você está. Use o que você tem. Faça o que você pode.',
+        'O sucesso é a soma de pequenos esforços repetidos dia após dia.',
+        'Acredite em si mesmo e tudo será possível.',
+        'O futuro pertence a quem acredita na beleza dos seus sonhos.'
+      ],
+      colorPalettes:[
+        { accent1:'#58A6FF', accent2:'#1F6FEB' },
+        { accent1:'#3FB950', accent2:'#2AAA8A' },
+        { accent1:'#BF39A1', accent2:'#A371F7' },
+        { accent1:'#F77825', accent2:'#D29922' }
+      ]
+    };
 
-            // --- Lógica do Tema ---
-            const applyTheme = (theme) => {
-                elements.body.className = `${theme}-theme`;
-                elements.sunIcon.style.display = theme === 'light' ? 'block' : 'none';
-                elements.moonIcon.style.display = theme === 'dark' ? 'block' : 'none';
-                localStorage.setItem('theme', theme);
-            };
-            elements.themeToggleBtn.onclick = () => {
-                const newTheme = elements.body.classList.contains('dark-theme') ? 'light' : 'dark';
-                applyTheme(newTheme);
-            };
+    // ===================== 2) ESTADO & ELEMENTOS =====================
+    const el = {
+      tabs: document.querySelectorAll('.tab'),
+      panels: {
+        aulas: document.getElementById('tab-aulas'),
+        trabalhos: document.getElementById('tab-trabalhos'),
+        materiais: document.getElementById('tab-materiais'),
+      },
+      stars: document.getElementById('stars'),
+      relaxBtn: document.getElementById('relaxBtn'),
+      themeBtn: document.getElementById('themeBtn'),
+      announce: document.getElementById('announce'),
+      notify: document.getElementById('notify'),
+      quote: document.getElementById('quote'),
+      bimBar: document.getElementById('bimBar'),
+      bimLabel: document.getElementById('bimLabel'),
+      // aulas
+      calendar: document.getElementById('calendar'),
+      searchCal: document.getElementById('searchCal'),
+      results: document.getElementById('results'),
+      dayEvents: document.getElementById('dayEvents'),
+      lessons: document.getElementById('lessons'),
+      lessonsSummary: document.getElementById('lessonsSummary'),
+      viewMode: document.getElementById('viewMode'),
+      subjectFilter: document.getElementById('subjectFilter'),
+      clearNotes: document.getElementById('clearNotes'),
+      // trabalhos
+      tlPending: document.getElementById('tlPending'),
+      tlDone: document.getElementById('tlDone'),
+      relaxPanel: document.getElementById('relaxPanel'),
+      // materiais
+      materials: document.getElementById('materials'),
+      engine: document.getElementById('engine'),
+      qExt: document.getElementById('qExt'),
+      goExt: document.getElementById('goExt'),
+      quick: document.getElementById('quick'),
+      saveQuick: document.getElementById('saveQuick'),
+      quickList: document.getElementById('quickList'),
+      cvBtn: document.getElementById('cvBtn'),
+      app: document.getElementById('app')
+    };
 
-            // --- Funções de Renderização ---
-            const renderQuote = () => {
-                const randomQuote = appData.quotes[Math.floor(Math.random() * appData.quotes.length)];
-                elements.quoteContainer.textContent = `"${randomQuote}"`;
-            };
+    const state = {
+      today: new Date(),
+      selected: new Date(),
+      month: (new Date()).getMonth(),
+      year: (new Date()).getFullYear(),
+    };
 
-            const renderAnnouncement = () => {
-                const { id, title, message } = appData.announcement;
-                elements.announcementContainer.innerHTML = `
-                    <div class="announcement-content">
-                        <button class="close-announcement-btn" id="closeAnnouncementBtn" title="Fechar aviso">×</button>
-                        <h2>${title}</h2>
-                        <p>${message}</p>
-                    </div>
-                    <div class="reactions-container" id="reactionsContainer"></div>
-                `;
-                document.getElementById('closeAnnouncementBtn').addEventListener('click', () => {
-                    elements.announcementContainer.classList.add('hidden');
-                });
-                renderReactions(id);
-            };
-            
-            const createParticleExplosion = (target) => {
-                for (let i = 0; i < 15; i++) {
-                    const particle = document.createElement('div');
-                    particle.classList.add('particle');
-                    const angle = Math.random() * 360;
-                    const distance = Math.random() * 40 + 20;
-                    const size = Math.random() * 3 + 2;
-                    particle.style.width = `${size}px`;
-                    particle.style.height = `${size}px`;
-                    particle.style.setProperty('--x', `${Math.cos(angle) * distance}px`);
-                    particle.style.setProperty('--y', `${Math.sin(angle) * distance}px`);
-                    particle.style.animation = `explode 0.6s ${Math.random() * 0.2}s ease-out forwards`;
-                    particle.style.animationName = 'explode';
-                    particle.style.animationDuration = '0.6s';
-                    particle.style.animationDelay = `${Math.random() * 0.2}s`;
-                    particle.style.animationTimingFunction = 'ease-out';
-                    particle.style.animationFillMode = 'forwards';
-                    
-                    target.appendChild(particle);
-                    setTimeout(() => particle.remove(), 800);
-                }
-            };
-            
-            const renderReactions = (announcementId) => {
-                const container = document.getElementById('reactionsContainer');
-                const reactions = ['👍', '🔥', '🤔'];
-                container.innerHTML = reactions.map(emoji => {
-                    const key = `reaction-${announcementId}-${emoji}`;
-                    const isActive = localStorage.getItem(key) === 'true';
-                    return `<button class="reaction-btn ${isActive ? 'active' : ''}" data-emoji="${emoji}" data-key="${key}">${emoji}</button>`;
-                }).join('');
+    // ===================== 3) UTIL =====================
+    const pad = (n) => n.toString().padStart(2,'0');
+    const toISO = (d) => `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`;
 
-                container.querySelectorAll('.reaction-btn').forEach(btn => {
-                    btn.addEventListener('click', (e) => {
-                        const key = btn.dataset.key;
-                        const isActive = localStorage.getItem(key) === 'true';
-                        if (isActive) {
-                            localStorage.removeItem(key);
-                            btn.classList.remove('active');
-                        } else {
-                            localStorage.setItem(key, 'true');
-                            btn.classList.add('active');
-                            createParticleExplosion(e.currentTarget);
-                        }
-                    });
-                });
-            };
+    // Semana/cores
+    function getWeekNumber(d){
+      d = new Date(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate()));
+      d.setUTCDate(d.getUTCDate() + 4 - (d.getUTCDay()||7));
+      const yearStart = new Date(Date.UTC(d.getUTCFullYear(),0,1));
+      return Math.ceil((((d - yearStart) / 86400000) + 1)/7);
+    }
+    function applyWeeklyPalette(){
+      const week = getWeekNumber(new Date());
+      const p = appData.colorPalettes[week % appData.colorPalettes.length];
+      document.documentElement.style.setProperty('--accent-1', p.accent1);
+      document.documentElement.style.setProperty('--accent-2', p.accent2);
+    }
 
-            const renderLessonsForDate = (date) => {
-                const dayOfWeek = date.getDay();
-                const lessonData = appData.lessons[dayOfWeek];
+    // Tema dinâmico por horário
+    function autoTheme(){
+      const h = new Date().getHours();
+      if(h >= 6 && h < 18){ // manhã/tarde
+        document.body.classList.remove('neon');
+        document.body.style.filter = 'none';
+        el.themeBtn.textContent = '🌙';
+      } else if (h >= 18 && h < 23){ // noite
+        document.body.classList.remove('neon');
+        document.body.style.filter = 'brightness(0.95)';
+        el.themeBtn.textContent = '☀️';
+      } else { // madrugada: neon gamer
+        document.body.classList.add('neon');
+        document.body.style.filter = 'none';
+        el.themeBtn.textContent = '⚡';
+      }
+    }
 
-                if (lessonData) {
-                    const subjectListHtml = lessonData.subjects.map(s => {
-                        const countText = s.count > 1 ? `<span class="lesson-count">${s.count}x</span>` : '';
-                        return `<li style="border-left-color: var(--cor-${s.color});">
-                                    <span>${s.name}</span>
-                                    ${countText}
-                                </li>`;
-                    }).join('');
-                    elements.dailyLessonsContainer.innerHTML = `
-                        <div class="daily-lesson-card">
-                            <h3>${lessonData.day}</h3>
-                            <ul>${subjectListHtml}</ul>
-                        </div>
-                    `;
-                } else {
-                    elements.dailyLessonsContainer.innerHTML = `
-                        <div class="daily-lesson-card no-lessons-message">
-                            <p>Sem aulas agendadas para hoje. Bom descanso!</p>
-                        </div>
-                    `;
-                }
-            };
+    // alternância manual claro/escuro/neon (ciclo)
+    el.themeBtn.addEventListener('click', () => {
+      if(document.body.classList.contains('neon')){
+        document.body.classList.remove('neon');
+        document.body.style.filter = 'none';
+      } else if (document.body.style.filter){
+        document.body.style.filter = '';
+      } else {
+        document.body.style.filter = 'brightness(0.95)';
+      }
+    });
 
-            const renderAssignments = () => {
-                elements.pendingAssignments.innerHTML = '';
-                elements.doneAssignments.innerHTML = '';
-                appData.assignments.forEach(assignment => {
-                    const card = document.createElement('div');
-                    card.className = 'item-card';
-                    card.innerHTML = `
-                        <span class="item-title">${assignment.title}</span>
-                        <span class="item-status ${assignment.status}">${assignment.status === 'pending' ? 'Pendente' : 'Concluído'}</span>
-                    `;
-                    (assignment.status === 'pending' ? elements.pendingAssignments : elements.doneAssignments).appendChild(card);
-                });
-            };
+    // Estrelas (modo relax)
+    function drawStars(){
+      const c = el.stars, ctx = c.getContext('2d');
+      const DPR = Math.max(1, window.devicePixelRatio||1);
+      c.width = innerWidth*DPR; c.height = innerHeight*DPR; c.style.width = '100%'; c.style.height='100%';
+      const stars = Array.from({length:200},()=>({ x: Math.random()*c.width, y: Math.random()*c.height, r: Math.random()*1.2*DPR, s: Math.random()*0.6+0.2 }));
+      let t=0; (function anim(){
+        ctx.clearRect(0,0,c.width,c.height);
+        for(const st of stars){
+          ctx.globalAlpha = 0.5 + Math.sin((t+st.x*0.01)*st.s)*0.5;
+          ctx.beginPath(); ctx.arc(st.x, st.y, st.r, 0, Math.PI*2); ctx.fillStyle = '#fff'; ctx.fill();
+        }
+        t+=0.02; requestAnimationFrame(anim);
+      })();
+    }
 
-            const renderMaterials = () => {
-                elements.materialsContainer.innerHTML = '';
-                appData.materials.forEach(material => {
-                    const card = document.createElement('div');
-                    card.className = 'item-card material-card';
-                    card.innerHTML = `
-                        <span class="material-icon">${material.icon}</span>
-                        <div>
-                            <div class="item-title">${material.title}</div>
-                            <div class="material-desc">${material.desc}</div>
-                        </div>
-                    `;
-                    elements.materialsContainer.appendChild(card);
-                });
-                
-                const savedLink = localStorage.getItem('quickLink');
-                if(savedLink) {
-                    const card = document.createElement('div');
-                    card.className = 'item-card material-card';
-                    card.innerHTML = `
-                        <span class="material-icon">🚀</span>
-                        <div>
-                            <div class="item-title">Link Rápido</div>
-                            <a href="${savedLink}" target="_blank" rel="noopener noreferrer" class="material-desc" style="color: var(--accent-1); text-decoration: underline;">${savedLink.substring(0, 25)}...</a>
-                        </div>
-                    `;
-                    elements.materialsContainer.appendChild(card);
-                }
-            };
+    // Notificações + som via WebAudio
+    function notify(msg){
+      const n = document.createElement('div'); n.className='note'; n.textContent = msg; el.notify.appendChild(n);
+      try {
+        const ctx = new (window.AudioContext||window.webkitAudioContext)();
+        const o = ctx.createOscillator(); const g = ctx.createGain();
+        o.type='sine'; o.frequency.value = 880; o.connect(g); g.connect(ctx.destination);
+        g.gain.setValueAtTime(0.0001, ctx.currentTime);
+        g.gain.exponentialRampToValueAtTime(0.12, ctx.currentTime+0.01);
+        g.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime+0.25);
+        o.start(); o.stop(ctx.currentTime+0.26);
+      } catch(e) {}
+      setTimeout(()=>{ n.remove(); }, 2600);
+    }
 
-            const renderEventsForDate = (date) => {
-                const dateString = toYYYYMMDD(date);
-                const events = appData.events[dateString];
+    // ===================== 4) CITAÇÃO + BIMESTRE =====================
+    function renderQuote(){
+      const q = appData.quotes[Math.floor(Math.random()*appData.quotes.length)];
+      el.quote.textContent = '“'+q+'”';
+    }
+    function renderBimester(){
+      const start = new Date(appData.bimesterStartDate+'T00:00:00');
+      const end   = new Date(appData.bimesterEndDate+'T23:59:59');
+      const now = new Date();
+      const total = end - start; const done = Math.min(Math.max(now - start, 0), total);
+      const pct = Math.round((done/total)*100);
+      const daysRemaining = Math.max(0, Math.ceil((end - now) / (1000 * 60 * 60 * 24)));
+      el.bimBar.style.width = pct+'%';
+      el.bimLabel.textContent = `${pct}% (${daysRemaining} dias restantes)`;
+      el.bimBar.parentElement.title = `Progresso do bimestre. Faltam ${daysRemaining} dias.`;
+    }
 
-                if (events && events.length > 0) {
-                    const eventListHtml = events.map(event => {
-                        const assignment = appData.assignments.find(a => event.title.includes(a.title));
-                        const isDone = assignment && assignment.status === 'done';
-                        return `
-                        <li class="event-item ${isDone ? 'is-done' : ''}">
-                            <span class="event-type ${event.type.toLowerCase()}">${event.type}</span>
-                            <span>${event.title}</span>
-                        </li>
-                    `}).join('');
-                    elements.dailyEventsContainer.innerHTML = `<ul class="event-list">${eventListHtml}</ul>`;
-                } else {
-                    elements.dailyEventsContainer.innerHTML = '';
-                }
-            };
-            
-            const renderBimesterCountdown = () => {
-                const endDate = new Date(appData.bimesterEndDate + 'T23:59:59');
-                const now = new Date();
-                const diffTime = endDate - now;
-                const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+    // ===================== 5) AVISO + REAÇÕES =====================
+    function renderAnnouncement(){
+      const a = appData.announcement; const container = el.announce;
+      container.innerHTML = `
+        <button class="close-x" id="xAnn">×</button>
+        <h2>${a.title}</h2>
+        <p style="margin:0;color:var(--text-secondary)">${a.message}</p>
+        <div class="reactions" id="reax"></div>`;
+      document.getElementById('xAnn').onclick = ()=> container.remove();
+      const emojis = ['👍','🔥','🤔'];
+      const r = document.getElementById('reax');
+      r.innerHTML = emojis.map(e => {
+        const key = `rx-${a.id}-${e}`; const on = localStorage.getItem(key)==='1';
+        return `<button class="react ${on?'active':''}" data-k="${key}">${e}</button>`;
+      }).join('');
+      r.querySelectorAll('.react').forEach(btn=>btn.onclick = ()=>{
+        const k = btn.dataset.k; const on = localStorage.getItem(k)==='1';
+        if(on){ localStorage.removeItem(k); btn.classList.remove('active'); }
+        else { localStorage.setItem(k,'1'); btn.classList.add('active'); particle(btn); }
+      });
+    }
+    function particle(target){
+      for(let i=0;i<14;i++){
+        const p = document.createElement('span');
+        const s = Math.random()*6+4; const a = Math.random()*Math.PI*2; const d = Math.random()*48+22;
+        p.style.cssText = `position:absolute;left:50%;top:50%;width:${s}px;height:${s}px;border-radius:50%;background:var(--accent-1);transform:translate(-50%,-50%);opacity:.9;`;
+        target.style.position='relative'; target.appendChild(p);
+        p.animate([
+          { transform:'translate(-50%,-50%) scale(1)', opacity:.9 },
+          { transform:`translate(${x}px, ${y}px) scale(0)`, opacity:0 }
+        ], { duration:600, easing:'ease-out' }).onfinish = ()=> p.remove();
+      }
+    }
 
-                if (diffDays > 0) {
-                    elements.bimesterCountdown.innerHTML = `⏳ Faltam ${diffDays} dias para o fim do 3º bimestre!`;
-                } else {
-                    elements.bimesterCountdown.innerHTML = `🎉 3º Bimestre concluído!`;
-                }
-            };
+    // ===================== 6) CALENDÁRIO =====================
+    function renderCalendar(m, y){
+      el.calendar.innerHTML = '';
+      const first = new Date(y, m, 1); const last = new Date(y, m+1, 0);
+      const days = ['Dom','Seg','Ter','Qua','Qui','Sex','Sáb'];
+      const months = ['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
+      const head = document.createElement('div'); head.className='cal-head';
+      head.innerHTML = `<button id="prev">‹</button><strong>${months[m]} ${y}</strong><button id="next">›</button>`;
+      el.calendar.appendChild(head);
+      head.querySelector('#prev').onclick = ()=>{ state.month--; if(state.month<0){state.month=11; state.year--;} renderCalendar(state.month,state.year)};
+      head.querySelector('#next').onclick = ()=>{ state.month++; if(state.month>11){state.month=0; state.year++;} renderCalendar(state.month,state.year)};
 
-            // --- Lógica do Calendário ---
-            const toYYYYMMDD = (date) => {
-                const year = date.getFullYear();
-                const month = (date.getMonth() + 1).toString().padStart(2, '0');
-                const day = date.getDate().toString().padStart(2, '0');
-                return `${year}-${month}-${day}`;
-            };
+      const grid = document.createElement('div'); grid.className='cal-grid';
+      days.forEach(d=>{ const dv = document.createElement('div'); dv.className='cal-day'; dv.textContent=d; grid.appendChild(dv) });
+      const startIdx = first.getDay(); const prevLast = new Date(y,m,0).getDate();
+      for(let i=startIdx;i>0;i--){ const dv = document.createElement('div'); dv.className='cal-date'; dv.style.opacity=.35; dv.textContent = prevLast - i + 1; grid.appendChild(dv);} 
+      for(let d=1; d<=last.getDate(); d++){
+        const dv = document.createElement('div'); dv.className='cal-date'; dv.textContent=d;
+        const thisDate = new Date(y,m,d); const iso = toISO(thisDate);
+        if (d===state.today.getDate() && m===state.today.getMonth() && y===state.today.getFullYear()) dv.classList.add('today');
+        if (d===state.selected.getDate() && m===state.selected.getMonth() && y===state.selected.getFullYear()) dv.classList.add('selected');
+        if (appData.events[iso]){ dv.classList.add('has-events'); if(appData.events[iso].some(e=>e.type==='Feriado')) dv.classList.add('is-holiday'); }
+        dv.onclick = ()=>{ state.selected = thisDate; renderCalendar(state.month,state.year); renderDay(thisDate); };
+        grid.appendChild(dv);
+      }
+      el.calendar.appendChild(grid);
+    }
 
-            const renderCalendar = (month, year) => {
-                elements.calendarEl.innerHTML = '';
-                const firstDay = new Date(year, month, 1);
-                const lastDay = new Date(year, month + 1, 0);
-                const monthNames = ['Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho', 'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro'];
-                const dayNames = ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb'];
+    function renderDay(date){
+      const iso = toISO(date); const evs = appData.events[iso]||[];
+      const today = new Date(); today.setHours(0,0,0,0);
+      const isPast = date < today;
+      el.dayEvents.innerHTML = evs.length ? evs.map(e=>`<div class="event ${isPast ? 'is-past' : ''}"><span class="etype ${e.type}">${e.type}</span><span>${e.title}</span></div>`).join('') : '<p style="color:var(--text-secondary); text-align:center;">Nenhum evento para este dia.</p>';
+      
+      el.dayEvents.classList.add('reloading');
+      setTimeout(() => el.dayEvents.classList.remove('reloading'), 600);
 
-                const header = document.createElement('div');
-                header.className = 'calendar-header';
-                header.innerHTML = `<button>‹</button><span>${monthNames[month]} ${year}</span><button>›</button>`;
-                header.querySelector('button:first-child').onclick = () => changeMonth(-1);
-                header.querySelector('button:last-child').onclick = () => changeMonth(1);
-                elements.calendarEl.appendChild(header);
+      renderLessons(date);
+    }
 
-                const grid = document.createElement('div');
-                grid.className = 'calendar-grid';
-                dayNames.forEach(day => grid.innerHTML += `<div class="calendar-day">${day}</div>`);
+    // Busca calendário
+    const nowForSearch = new Date();
+    nowForSearch.setHours(0,0,0,0);
+    const allEventsAndAssignments = [
+      ...Object.entries(appData.events).flatMap(([date, arr]) => arr.map(x=>({ ...x, date }))),
+      ...appData.assignments.filter(a=>a.date).map(a=>({ type:'Trabalho', title:`Entrega de ${a.title}`, date:a.date }))
+    ];
+    const searchable = allEventsAndAssignments.filter(item => {
+        const itemDate = new Date(item.date + 'T00:00:00');
+        return itemDate >= nowForSearch;
+    });
 
-                const startDayIndex = firstDay.getDay();
-                const prevLastDay = new Date(year, month, 0).getDate();
-                for (let i = startDayIndex; i > 0; i--) {
-                    grid.innerHTML += `<div class="calendar-date other-month">${prevLastDay - i + 1}</div>`;
-                }
+    el.searchCal.addEventListener('input', e=>{
+      const q = e.target.value.toLowerCase();
+      if(q.length<2){ el.results.innerHTML=''; return; }
+      const res = searchable.filter(i => i.title.toLowerCase().includes(q) || i.date.includes(q));
+      el.results.innerHTML = res.map(r=>`<div class="res" data-d="${r.date}">${r.title} <small style="color:var(--text-secondary)">${new Date(r.date+'T00:00:00').toLocaleDateString()}</small></div>`).join('');
+      el.results.querySelectorAll('.res').forEach(n=> n.onclick = ()=>{
+        const d = new Date(n.dataset.d+'T00:00:00'); state.selected=d; state.month=d.getMonth(); state.year=d.getFullYear(); renderCalendar(state.month,state.year); renderDay(state.selected); el.searchCal.value=''; el.results.innerHTML='';
+      });
+    });
 
-                for (let d = 1; d <= lastDay.getDate(); d++) {
-                    const dateEl = document.createElement('div');
-                    const thisDate = new Date(year, month, d);
-                    const dateString = toYYYYMMDD(thisDate);
-                    
-                    dateEl.className = 'calendar-date';
-                    dateEl.textContent = d;
-                    if (d === state.today.getDate() && month === state.today.getMonth() && year === state.today.getFullYear()) dateEl.classList.add('today');
-                    if (d === state.selectedDate.getDate() && month === state.selectedDate.getMonth() && year === state.selectedDate.getFullYear()) dateEl.classList.add('selected');
-                    if (appData.events[dateString]) {
-                        dateEl.classList.add('has-events');
-                        if(appData.events[dateString].some(e => e.type === 'Feriado')) {
-                            dateEl.classList.add('is-holiday');
-                        }
-                    }
+    // ===================== 7) AULAS (HOJE/SEMANA, FILTRO, INTERAÇÃO) =====================
+    function initSubjectFilter(){
+      const all = new Set();
+      Object.values(appData.lessons).forEach(d => d.subjects.forEach(s=> all.add(s.name)));
+      el.subjectFilter.innerHTML = '<option value="">Todas as matérias</option>' + Array.from(all).sort().map(n=>`<option value="${n}">${n}</option>`).join('');
+    }
 
-                    dateEl.onclick = () => {
-                        state.selectedDate = thisDate;
-                        renderCalendar(state.currentMonth, state.currentYear);
-                        renderLessonsForDate(state.selectedDate);
-                        renderEventsForDate(state.selectedDate);
-                    };
-                    grid.appendChild(dateEl);
-                }
-                
-                elements.calendarEl.appendChild(grid);
-            };
+    function renderLessons(date){
+      const view = el.viewMode.value; const filter = el.subjectFilter.value;
+      el.lessons.innerHTML = '';
+      const days = view==='hoje' ? [date.getDay()] : [1,2,3,4,5];
+      let totalAulas = 0; let alertas = [];
+      const isTodayView = view === 'hoje';
 
-            const changeMonth = (direction) => {
-                state.currentMonth += direction;
-                if (state.currentMonth < 0) { state.currentMonth = 11; state.currentYear--; }
-                if (state.currentMonth > 11) { state.currentMonth = 0; state.currentYear++; }
-                renderCalendar(state.currentMonth, state.currentYear);
-            };
-            
-            // --- Lógica da Busca ---
-            const searchableItems = [
-                ...Object.entries(appData.events).flatMap(([date, events]) => 
-                    events.map(event => ({ ...event, date }))
-                ),
-                ...appData.assignments.filter(a => a.date).map(a => ({
-                    type: 'Trabalho', title: `Entrega de ${a.title}`, date: a.date
-                }))
-            ];
+      days.forEach(dow => {
+        const ddata = appData.lessons[dow]; if(!ddata) return;
+        const list = ddata.subjects.filter(s=>!filter || s.name===filter);
+        if(!list.length) return;
+        list.forEach(s=>{ if(s.count && s.count>1) alertas.push(`${s.count} aulas seguidas de ${s.name}`); totalAulas += (s.count||1); });
+        const title = document.createElement('div'); title.style.fontWeight='800'; title.style.margin='4px 2px'; title.textContent = ddata.day; el.lessons.appendChild(title);
+        list.forEach(subj => el.lessons.appendChild(makeLessonCard(ddata.day, subj, isTodayView ? date : null)));
+      });
 
-            elements.searchInput.addEventListener('input', (e) => {
-                const query = e.target.value.toLowerCase();
-                if (query.length < 2) {
-                    elements.searchResults.innerHTML = '';
-                    return;
-                }
-                const results = searchableItems.filter(item => 
-                    item.title.toLowerCase().includes(query) || item.date.includes(query)
-                );
-                
-                elements.searchResults.innerHTML = results.map(item => `
-                    <div class="search-result-item" data-date="${item.date}">
-                        ${item.title} <small>${new Date(item.date + 'T00:00:00').toLocaleDateString()}</small>
-                    </div>
-                `).join('');
-                
-                elements.searchResults.querySelectorAll('.search-result-item').forEach(item => {
-                    item.addEventListener('click', () => {
-                        const date = new Date(item.dataset.date + 'T00:00:00');
-                        state.selectedDate = date;
-                        state.currentMonth = date.getMonth();
-                        state.currentYear = date.getFullYear();
-                        renderCalendar(state.currentMonth, state.currentYear);
-                        renderLessonsForDate(state.selectedDate);
-                        renderEventsForDate(state.selectedDate);
-                        elements.searchInput.value = '';
-                        elements.searchResults.innerHTML = '';
-                    });
-                });
-            });
-            
-            // --- Link Rápido ---
-            elements.saveQuickLinkBtn.onclick = () => {
-                const link = elements.quickLinkInput.value;
-                if(link) {
-                    localStorage.setItem('quickLink', link);
-                    renderMaterials();
-                    elements.quickLinkInput.value = '';
-                }
-            };
-            
-            // --- Cores Semanais ---
-            const getWeekNumber = (d) => {
-                d = new Date(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate()));
-                d.setUTCDate(d.getUTCDate() + 4 - (d.getUTCDay()||7));
-                var yearStart = new Date(Date.UTC(d.getUTCFullYear(),0,1));
-                var weekNo = Math.ceil(( ( (d - yearStart) / 86400000) + 1)/7);
-                return weekNo;
-            };
-            
-            const applyColorScheme = () => {
-                const week = getWeekNumber(new Date());
-                const palette = appData.colorPalettes[week % appData.colorPalettes.length];
-                elements.root.style.setProperty('--accent-1', palette.accent1);
-                elements.root.style.setProperty('--accent-2', palette.accent2);
-                
-                // Para o fundo aurora
-                const hexToRgb = hex => {
-                    let result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
-                    return result ? `${parseInt(result[1], 16)}, ${parseInt(result[2], 16)}, ${parseInt(result[3], 16)}` : null;
-                }
-                elements.root.style.setProperty('--accent-1-trans', `rgba(${hexToRgb(palette.accent1)}, 0.15)`);
-                elements.root.style.setProperty('--accent-2-trans', `rgba(${hexToRgb(palette.accent2)}, 0.15)`);
-            };
+      if(totalAulas===0){ el.lessonsSummary.textContent = 'Sem aulas filtradas.'; return; }
+      const uniqueAlerts = [...new Set(alertas)];
+      el.lessonsSummary.textContent = `Total: ${totalAulas} aulas${uniqueAlerts.length? ' — Avisos: '+uniqueAlerts.join('; ') : ''}`;
+    }
 
-            // --- Inicialização da Aplicação ---
-            const init = () => {
-                const savedTheme = localStorage.getItem('theme') || 'dark';
-                applyTheme(savedTheme);
-                applyColorScheme();
-                
-                renderQuote();
-                renderAnnouncement();
-                renderAssignments();
-                renderMaterials();
-                renderCalendar(state.currentMonth, state.currentYear);
-                renderLessonsForDate(state.selectedDate);
-                renderEventsForDate(state.selectedDate);
-                renderBimesterCountdown();
-            };
+    function makeLessonCard(dayName, subj, specificDate){
+      const card = document.createElement('div');
+      card.className = 'lesson-card';
+      card.style.borderLeft = `4px solid var(--cor-${subj.color || 'default'})`;
 
-            init();
-        });
-    </script>
+      const key = `note-${dayName}-${subj.name}`;
+      const saved = localStorage.getItem(key) || '';
+
+      let importantMessage = '';
+      if (specificDate && subj.name === 'Lógica' && !subj.room?.toLowerCase().includes('lab')) {
+          const iso = toISO(specificDate);
+          const dayEvents = appData.events[iso] || [];
+          const importantEvents = dayEvents.filter(e => e.type === 'Prova' || e.type === 'Trabalho');
+          if (importantEvents.length > 0) {
+              importantMessage = `<div class="important-note"><strong>Atenção:</strong> ${importantEvents.map(e => e.title).join(', ')} hoje!</div>`;
+          }
+      }
+
+      card.innerHTML = `
+        <div class="lesson-header">
+            <strong>${subj.name} ${(subj.count && subj.count > 1) ? `<span class='badge'>${subj.count}x</span>` : ''}</strong>
+            ${subj.room ? `<div class="badge">Sala: ${subj.room}</div>` : ''}
+        </div>
+        <small class="notes-prompt">Clique para ver/editar anotações</small>
+        <div class="lesson-notes">
+            ${importantMessage}
+            <textarea rows="4" placeholder="Anotações rápidas (salvas neste navegador)">${saved}</textarea>
+            <button class="btn save-note">Salvar & Fechar</button>
+        </div>`;
+      
+      card.addEventListener('click', () => {
+          if (!card.classList.contains('is-open')) {
+             card.classList.add('is-open');
+          }
+      });
+      
+      const saveBtn = card.querySelector('.save-note');
+      const ta = card.querySelector('textarea');
+      
+      saveBtn.addEventListener('click', (e) => {
+          e.stopPropagation();
+          localStorage.setItem(key, ta.value);
+          notify('Anotações salvas');
+          card.classList.remove('is-open');
+      });
+
+      return card;
+    }
+
+    el.viewMode.onchange = ()=> renderLessons(state.selected);
+    el.subjectFilter.onchange = ()=> renderLessons(state.selected);
+    el.clearNotes.onclick = ()=>{
+      if(!confirm('Limpar todas as anotações visíveis?')) return;
+      const filter = el.subjectFilter.value; const view = el.viewMode.value; const days = view==='hoje' ? [state.selected.getDay()] : [1,2,3,4,5];
+      days.forEach(dow=>{ const ddata = appData.lessons[dow]; if(!ddata) return; ddata.subjects.forEach(s=>{ if(!filter || filter===s.name){ localStorage.removeItem(`note-${ddata.day}-${s.name}`); }}); });
+      notify('Anotações limpas'); renderLessons(state.selected);
+    };
+
+    // ===================== 8) TRABALHOS (TIMELINE + PROGRESSO) =====================
+    function renderAssignments(){
+      el.tlPending.innerHTML=''; el.tlDone.innerHTML='';
+      const now = new Date();
+      const start = new Date(appData.bimesterStartDate+'T00:00:00');
+      appData.assignments.forEach(a => {
+        if(a.status==='done'){
+          const c = document.createElement('div'); c.className='t-item done'; c.innerHTML = `<strong>${a.title}</strong><div class="days">Concluído ${a.date?('em '+new Date(a.date+'T00:00:00').toLocaleDateString()):''}</div>`; el.tlDone.appendChild(c);
+          return;
+        }
+        const wrap = document.createElement('div'); wrap.className='t-item pending';
+        let pct = 0, daysLeft = '—';
+        if(a.date){
+          const due = new Date(a.date+'T23:59:59');
+          const total = Math.max(due - start, 1);
+          const elapsed = Math.min(Math.max(now - start, 0), total);
+          pct = Math.round((elapsed/total)*100);
+          const diff = Math.ceil((due - now)/(1000*60*60*24));
+          daysLeft = diff>=0? `${diff} dia(s) restantes` : `Atrasado`;
+          if (now > due) wrap.classList.add('is-past');
+          if(diff===1) notify(`⚠️ ${a.title} vence amanhã!`);
+          if(diff===0) notify(`⏰ ${a.title} vence hoje!`);
+        }
+        wrap.innerHTML = `<strong>${a.title}</strong><div class="days">${a.date?('Prazo: '+new Date(a.date+'T00:00:00').toLocaleDateString()+' — '):''}${daysLeft}</div><div class="tbar"><span style="width:${pct}%"></span></div>`;
+        el.tlPending.appendChild(wrap);
+      });
+    }
+
+    // ===================== 9) MATERIAIS + BUSCAS + QUICK LINK + CV =====================
+    function renderMaterials(){
+      el.materials.innerHTML = appData.materials.map(m=>`<div class="mat"><span class="icon">${m.icon}</span><div><div style="font-weight:700">${m.title}</div><div style="color:var(--text-secondary)">${m.desc}</div></div></div>`).join('');
+      const saved = JSON.parse(localStorage.getItem('quick-links')||'[]');
+      el.quickList.innerHTML = saved.length ? saved.map(u=>`<div>🚀 <a class="link" href="${u}" target="_blank" rel="noopener noreferrer">${u}</a></div>`).join('') : '<span style="color:var(--text-secondary)">Nenhum link salvo ainda.</span>';
+    }
+    el.goExt.onclick = ()=>{
+      const q = encodeURIComponent(el.qExt.value.trim()); if(!q) return;
+      const base = el.engine.value==='scholar' ? 'https://scholar.google.com/scholar?q=' : 'https://www.youtube.com/results?search_query=';
+      window.open(base+q, '_blank','noopener');
+    };
+    el.saveQuick.onclick = ()=>{
+      const v = el.quick.value.trim(); if(!v) return; const arr = JSON.parse(localStorage.getItem('quick-links')||'[]');
+      arr.unshift(v); localStorage.setItem('quick-links', JSON.stringify(arr.slice(0,8))); el.quick.value=''; renderMaterials(); notify('Link salvo');
+    };
+    el.cvBtn.onclick = ()=>{
+      const txt = `NOME COMPLETO\nCidade – UF | (00) 00000-0000 | email@exemplo.com\nLinkedIn/GitHub: https://...\n\nOBJETIVO\nEstágio/Junior em Desenvolvimento.\n\nFORMAÇÃO\n• Curso Técnico/Ensino Médio – Escola X (2024–2026)\n\nHABILIDADES\n• HTML, CSS, JS | Git/GitHub | Figma | Trabalho em equipe\n\nPROJETOS\n• DS2A Hub – hub de estudos com calendário, tarefas e materiais.\n\nATIVIDADES/EXTRAS\n• Monitoria, eventos, voluntariado.\n`;
+      const blob = new Blob([txt], {type:'text/plain'}); const url = URL.createObjectURL(blob);
+      const a = document.createElement('a'); a.href=url; a.download='curriculo.txt'; a.click(); URL.revokeObjectURL(url);
+    };
+
+    // ===================== 10) TABS + RELAX =====================
+    el.tabs.forEach(t => t.addEventListener('click', () => {
+      el.tabs.forEach(x => x.classList.remove('active'));
+      t.classList.add('active');
+      const targetId = 'tab-' + t.dataset.tab;
+      document.querySelector('section[role="tabpanel"].active')?.classList.remove('active');
+      document.getElementById(targetId)?.classList.add('active');
+    }));
+
+    el.relaxBtn.onclick = ()=>{
+      document.body.classList.toggle('relax-on');
+      el.app.classList.toggle('relax-on');
+      if(document.body.classList.contains('relax-on')) notify('Modo Relax ativado'); else notify('Modo Relax desativado');
+    };
+
+    // ===================== 11) INIT =====================
+    applyWeeklyPalette();
+    autoTheme();
+    renderQuote();
+    renderBimester();
+    renderAnnouncement();
+    renderCalendar(state.month, state.year);
+    renderDay(state.selected);
+    initSubjectFilter();
+    renderAssignments();
+    renderMaterials();
+    drawStars();
+
+    // alertas iniciais de prazo curto
+    (function deadlineAlerts(){
+      const now = new Date(); appData.assignments.filter(a=>a.status==='pending' && a.date).forEach(a=>{
+        const diff = Math.ceil((new Date(a.date+'T23:59:59')-now)/(1000*60*60*24));
+        if(diff>=0 && diff<=2) notify(`⚠️ ${a.title} vence em ${diff} dia(s)`);
+      });
+    })();
+
+    // Recalcular barra do bimestre diariamente
+    setInterval(renderBimester, 60*60*1000);
+    // Ajustar tema de hora em hora
+    setInterval(autoTheme, 60*60*1000);
+    // Responsivo estrelas
+    window.addEventListener('resize', drawStars);
+  });
+  </script>
 </body>
 </html>
 
