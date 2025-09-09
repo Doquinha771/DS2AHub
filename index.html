@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+        <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8" />
@@ -49,6 +49,7 @@
 
     /* --- Animações e Transições --- */
     @keyframes fadeInUp { from { opacity: 0; transform: translateY(15px); } to { opacity: 1; transform: translateY(0); } }
+    @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
     .card { animation: fadeInUp 0.6s ease-out both; }
     section[role="tabpanel"] { display: none; }
     section[role="tabpanel"].active { display: block; animation: fadeInUp 0.5s ease-out; }
@@ -57,6 +58,15 @@
     #dayEvents.reloading > .event { animation: fadeInUp 0.5s ease-out both; }
     #dayEvents.reloading > .event:nth-child(2) { animation-delay: .08s; }
     #dayEvents.reloading > .event:nth-child(3) { animation-delay: .16s; }
+    
+    /* --- Modal de Aviso Urgente --- */
+    .modal-backdrop { position: fixed; inset: 0; background: rgba(0, 0, 0, .7); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); z-index: 100; animation: fadeIn .3s ease; }
+    .modal-content { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 90%; max-width: 500px; border: 2px solid var(--danger); z-index: 101; padding: 24px; animation: fadeInUp .4s ease-out; }
+    .modal-content h2 { margin: 0 0 10px; color: var(--danger); }
+    .modal-content p { margin: 0 0 16px; color: var(--text-secondary); }
+    .modal-content .btn-danger { display: block; width: 100%; text-align: center; background: var(--danger); color: #fff; padding: 12px; font-weight: 700; text-decoration: none; border-radius: var(--radius-md); margin-bottom: 10px; transition: background .2s; }
+    .modal-content .btn-danger:hover { background: #ca3a33; }
+    .modal-content .btn-close-modal { width: 100%; }
     
     .card{background:var(--glass-bg);border:1px solid var(--glass-border);border-radius:var(--radius-lg);padding:18px;box-shadow:var(--card-shadow);backdrop-filter:blur(var(--glass-blur));-webkit-backdrop-filter:blur(var(--glass-blur))}
     .grid{display:grid;gap:16px}
@@ -133,6 +143,9 @@
   </style>
 </head>
 <body>
+  <div id="urgent-modal-backdrop" hidden></div>
+  <div id="urgent-modal-content" class="card" hidden></div>
+  
   <canvas id="stars"></canvas>
   <div class="notify" id="notify"></div>
 
@@ -231,6 +244,13 @@
   document.addEventListener('DOMContentLoaded', () => {
     // ===================== 1) DADOS =====================
     const appData = {
+      urgentAnnouncement: {
+        id: 'form-aviso-importante-setembro-2025',
+        title: '⚠️ Aviso Urgente: Preenchimento Obrigatório',
+        message: 'Por favor, preencha o formulário o mais rápido possível. É de extrema importância para a coordenação.',
+        link: 'https://docs.google.com/forms/d/e/1FAIpQLSeWfMI5nm5NR7q0rMgmfeJU_sm7mf8KPriehm3FMfohr8PHpQ/viewform?usp=sharing&ouid=102826610762151983284',
+        linkLabel: 'Acessar Formulário'
+      },
       bimesterStartDate: '2025-08-01',
       bimesterEndDate:   '2025-09-30',
       announcement: { id:'anuncio-setembro', title:'Foco total em Setembro!', message:'Trabalho de Inglês concluído com sucesso! Prepare-se para a entrega de Educação Física na próxima semana. Vamos fechar o bimestre com chave de ouro!' },
@@ -297,6 +317,8 @@
         trabalhos: document.getElementById('tab-trabalhos'),
         materiais: document.getElementById('tab-materiais'),
       },
+      urgentModalBackdrop: document.getElementById('urgent-modal-backdrop'),
+      urgentModalContent: document.getElementById('urgent-modal-content'),
       stars: document.getElementById('stars'),
       relaxBtn: document.getElementById('relaxBtn'),
       themeBtn: document.getElementById('themeBtn'),
@@ -434,9 +456,31 @@
       el.bimBar.parentElement.title = `Progresso do bimestre. Faltam ${daysRemaining} dias.`;
     }
 
-    // ===================== 5) AVISO + REAÇÕES =====================
+    // ===================== 5) AVISOS (MODAL + REGULAR) =====================
+    function renderUrgentAnnouncement() {
+      const ua = appData.urgentAnnouncement;
+      if (!ua) return;
+      const storageKey = 'dismissed-' + ua.id;
+      if (localStorage.getItem(storageKey)) return;
+
+      el.urgentModalContent.innerHTML = `
+        <h2>${ua.title}</h2>
+        <p>${ua.message}</p>
+        <a href="${ua.link}" target="_blank" rel="noopener noreferrer" class="btn btn-danger">${ua.linkLabel}</a>
+        <button class="btn btn-close-modal">Entendi, fechar aviso</button>
+      `;
+      el.urgentModalBackdrop.hidden = false;
+      el.urgentModalContent.hidden = false;
+      el.urgentModalContent.querySelector('.btn-close-modal').onclick = () => {
+        localStorage.setItem(storageKey, 'true');
+        el.urgentModalBackdrop.hidden = true;
+        el.urgentModalContent.hidden = true;
+      };
+    }
+    
     function renderAnnouncement(){
       const a = appData.announcement; const container = el.announce;
+      if (!a) { container.hidden = true; return; }
       container.innerHTML = `
         <button class="close-x" id="xAnn">×</button>
         <h2>${a.title}</h2>
@@ -685,6 +729,7 @@
     autoTheme();
     renderQuote();
     renderBimester();
+    renderUrgentAnnouncement();
     renderAnnouncement();
     renderCalendar(state.month, state.year);
     renderDay(state.selected);
@@ -711,4 +756,3 @@
   </script>
 </body>
 </html>
-
