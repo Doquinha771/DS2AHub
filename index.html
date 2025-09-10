@@ -1,10 +1,9 @@
-        <!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8" />
   <title>DS2A Hub Refatorado — Completo</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <!-- CSP (compatível com arquivo único + YouTube nocookie) -->
   <meta http-equiv="Content-Security-Policy" content="default-src 'self'; img-src 'self' data:; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; script-src 'self' 'unsafe-inline'; frame-src https://www.youtube-nocookie.com https://www.youtube.com; connect-src 'self'; media-src 'self' data:;" />
   <meta name="description" content="Hub central DS2A para aulas, trabalhos, calendário e materiais." />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -24,18 +23,28 @@
       --radius-lg:16px; --radius-md:10px; --glass-blur:16px; --t: .35s;
       --cor-geografia:#3FB950; --cor-quimica:#BF39A1; --cor-ingles:#D29922; --cor-fisica:#F85149; --cor-carreira:#58A6FF; --cor-portugues:#A371F7; --cor-historia:#E3B341; --cor-biologia:#2AAA8A; --cor-redes:#F77825; --cor-matematica:#1F6FEB; --cor-sociologia:#DB61A2; --cor-processos:#3FB950; --cor-logica:#A371F7; --cor-edfisica:#F85149; --cor-default:#8b949e;
     }
+    html.light-theme {
+      --bg-start: #f0f2f5;
+      --bg-end: #e4e9f0;
+      --glass-bg: rgba(255, 255, 255, .6);
+      --glass-border: rgba(0,0,0,.1);
+      --text-primary: #1c1e21;
+      --text-secondary: #606770;
+    }
+
     *{box-sizing:border-box}
     html{scroll-behavior:smooth}
-    body{margin:0;min-height:100vh;font-family:Inter,system-ui,Segoe UI,Roboto,Arial,sans-serif;background: radial-gradient(1200px 1200px at 20% -10%, rgba(88,166,255,.12), transparent 60%), radial-gradient(1200px 1200px at 120% 10%, rgba(31,111,235,.12), transparent 60%), linear-gradient(180deg,var(--bg-start),var(--bg-end));color:var(--text-primary);display:flex;justify-content:center;padding:18px}
+    body{margin:0;min-height:100vh;font-family:Inter,system-ui,Segoe UI,Roboto,Arial,sans-serif;background:var(--bg-end);color:var(--text-primary);display:flex;justify-content:center;padding:18px; padding-bottom: 100px;transition: background .4s, color .4s;}
     .app{width:100%;max-width:980px}
     h1{margin:0;font-size:1.8rem;font-weight:800;background:var(--accent-gradient);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
     .header{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:12px;margin-bottom:10px}
-    .tabs{display:flex;gap:8px;background:var(--glass-bg);backdrop-filter:blur(var(--glass-blur));-webkit-backdrop-filter:blur(var(--glass-blur));padding:6px;border-radius:999px;border:1px solid var(--glass-border)}
+    .tabs{display:none;gap:8px;background:var(--glass-bg);backdrop-filter:blur(var(--glass-blur));-webkit-backdrop-filter:blur(var(--glass-blur));padding:6px;border-radius:999px;border:1px solid var(--glass-border)}
     .tab{padding:8px 16px;border:none;border-radius:999px;background:transparent;color:var(--text-secondary);font-weight:700;cursor:pointer;transition:.2s}
-    .tab:hover{background:rgba(255,255,255,.08);color:var(--text-primary)}
+    .tab:hover{background:rgba(255,255,255,.08)}
+    html.light-theme .tab:hover{background:rgba(0,0,0,.05)}
     .tab.active{background:var(--accent-2);color:#fff;box-shadow:0 6px 22px rgba(31,111,235,.35)}
-    .theme-toggle,.relax-toggle{width:40px;height:40px;border-radius:50%;border:1px solid var(--glass-border);background:var(--glass-bg);color:var(--text-primary);display:grid;place-items:center;cursor:pointer;transition:.2s}
-    .theme-toggle:hover,.relax-toggle:hover{transform:translateY(-2px);background:var(--accent-1);color:#010409}
+    .settings-toggle{width:40px;height:40px;border-radius:50%;border:1px solid var(--glass-border);background:var(--glass-bg);color:var(--text-primary);display:grid;place-items:center;cursor:pointer;transition:.2s}
+    .settings-toggle:hover{transform:translateY(-2px);background:var(--accent-1);color:#010409}
     .topbar{display:flex;gap:10px;align-items:center;justify-content:space-between;flex-wrap:wrap;color:var(--text-secondary);margin:8px 0 14px}
     .progress-wrap{flex:1;min-width:220px;background:rgba(255,255,255,.06);border:1px solid var(--glass-border);border-radius:999px;overflow:hidden;height:10px;position:relative}
     .progress-bar{height:100%;width:0;background:var(--accent-gradient);transition:width var(--t)}
@@ -49,8 +58,7 @@
 
     /* --- Animações e Transições --- */
     @keyframes fadeInUp { from { opacity: 0; transform: translateY(15px); } to { opacity: 1; transform: translateY(0); } }
-    @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
-    .card { animation: fadeInUp 0.6s ease-out both; }
+    .card, .infobox { animation: fadeInUp 0.6s ease-out both; }
     section[role="tabpanel"] { display: none; }
     section[role="tabpanel"].active { display: block; animation: fadeInUp 0.5s ease-out; }
     .is-past { text-decoration: line-through; opacity: 0.65; }
@@ -58,15 +66,6 @@
     #dayEvents.reloading > .event { animation: fadeInUp 0.5s ease-out both; }
     #dayEvents.reloading > .event:nth-child(2) { animation-delay: .08s; }
     #dayEvents.reloading > .event:nth-child(3) { animation-delay: .16s; }
-    
-    /* --- Modal de Aviso Urgente --- */
-    .modal-backdrop { position: fixed; inset: 0; background: rgba(0, 0, 0, .7); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); z-index: 100; animation: fadeIn .3s ease; }
-    .modal-content { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 90%; max-width: 500px; border: 2px solid var(--danger); z-index: 101; padding: 24px; animation: fadeInUp .4s ease-out; }
-    .modal-content h2 { margin: 0 0 10px; color: var(--danger); }
-    .modal-content p { margin: 0 0 16px; color: var(--text-secondary); }
-    .modal-content .btn-danger { display: block; width: 100%; text-align: center; background: var(--danger); color: #fff; padding: 12px; font-weight: 700; text-decoration: none; border-radius: var(--radius-md); margin-bottom: 10px; transition: background .2s; }
-    .modal-content .btn-danger:hover { background: #ca3a33; }
-    .modal-content .btn-close-modal { width: 100%; }
     
     .card{background:var(--glass-bg);border:1px solid var(--glass-border);border-radius:var(--radius-lg);padding:18px;box-shadow:var(--card-shadow);backdrop-filter:blur(var(--glass-blur));-webkit-backdrop-filter:blur(var(--glass-blur))}
     .grid{display:grid;gap:16px}
@@ -80,6 +79,7 @@
     .cal-day{color:var(--text-secondary);font-weight:700}
     .cal-date{cursor:pointer;color:var(--text-primary);position:relative}
     .cal-date:hover{background:rgba(255,255,255,.08)}
+    html.light-theme .cal-date:hover{background:rgba(0,0,0,.05)}
     .cal-date.today{background:var(--accent-gradient);color:#fff}
     .cal-date.selected{outline:2px solid var(--accent-1)}
     .cal-date.has-events::after{content:'';position:absolute;bottom:4px;left:50%;transform:translateX(-50%);width:5px;height:5px;border-radius:50%;background:var(--accent-1)}
@@ -92,7 +92,7 @@
 
     /* --- Aulas: cards interativos --- */
     .lessons-controls{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-bottom:8px}
-    select, input[type="text"], .btn{background:rgba(255,255,255,.08);border:1px solid var(--glass-border);color:var(--text-primary);border-radius:10px;padding:8px 10px}
+    select, .btn{background:rgba(255,255,255,.08);border:1px solid var(--glass-border);color:var(--text-primary);border-radius:10px;padding:8px 10px}
     .btn{cursor:pointer}
     .summary{display:flex;gap:10px;align-items:center;color:var(--text-secondary);margin:8px 0}
     .badge{font-size:.8rem;font-weight:700;padding:3px 8px;border-radius:8px;background:rgba(255,255,255,.08);align-self:flex-start}
@@ -105,6 +105,12 @@
     .lesson-card.is-open .notes-prompt { display: none; }
     .lesson-notes textarea { width: 100%; background:rgba(0,0,0,.2); border:1px solid var(--glass-border); color:var(--text-primary); border-radius:8px; padding:8px; margin-bottom: 8px; resize: vertical; }
     .save-note { width: 100%; }
+
+    #lessons { max-height: 420px; overflow-y: auto; padding-right: 8px; }
+    #lessons::-webkit-scrollbar { width: 6px; }
+    #lessons::-webkit-scrollbar-track { background: rgba(255,255,255,.05); border-radius: 10px; }
+    #lessons::-webkit-scrollbar-thumb { background: var(--glass-border); border-radius: 10px; }
+    #lessons::-webkit-scrollbar-thumb:hover { background: var(--accent-1); }
 
     /* Trabalhos: timeline */
     .timeline{position:relative;padding-left:12px}
@@ -120,11 +126,15 @@
     #relaxPanel{display:none;margin-top:10px}
     .relax-on #stars{opacity:.9}
     .relax-on #relaxPanel{display:block}
-
-    /* Busca rápida calendário */
-    .searchbox{position:relative}
-    .results{position:absolute;z-index:10;left:0;right:0;background:var(--glass-bg);border:1px solid var(--glass-border);border-radius:10px;max-height:160px;overflow:auto}
-    .res{padding:8px;cursor:pointer}
+    
+    /* --- Novo Search Box --- */
+    .search-wrapper { position: relative; margin-bottom: 10px; }
+    .search-wrapper input { background: #161b22; border: 1px solid var(--glass-border); color: var(--text-primary); border-radius: 999px; padding: 12px 20px 12px 45px; width: 100%; font-size: 1rem; box-shadow: inset 0 2px 8px rgba(0,0,0,.4); transition: border-color .3s; }
+    html.light-theme .search-wrapper input { background: #fff; }
+    .search-wrapper input:focus { border-color: var(--accent-1); outline: none; box-shadow: inset 0 2px 8px rgba(0,0,0,.4), 0 0 0 3px rgba(88, 166, 255, .2); }
+    .search-icon { position: absolute; top: 50%; left: 16px; transform: translateY(-50%); color: var(--text-secondary); pointer-events: none; }
+    .search-wrapper .results{position:absolute;top:110%;z-index:10;left:0;right:0;background:var(--glass-bg);border:1px solid var(--glass-border);border-radius:10px;max-height:160px;overflow:auto}
+    .res{padding:8px 14px;cursor:pointer}
     .res:hover{background:rgba(255,255,255,.08)}
 
     /* Materiais */
@@ -137,29 +147,70 @@
     .notify{position:fixed;top:12px;left:50%;transform:translateX(-50%);display:flex;gap:8px;flex-direction:column;z-index:50}
     .note{background:rgba(0,0,0,.8);padding:10px 14px;border-radius:10px;border:1px solid var(--glass-border)}
 
+    /* --- Infoboxes --- */
+    #infobox-container { margin-bottom: 16px; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); }
+    .infobox { display: flex; align-items: center; gap: 12px; background: rgba(255,255,255,.06); padding: 12px; border-radius: 12px; border: 1px solid var(--glass-border); }
+    .infobox-icon { font-size: 1.5rem; color: var(--accent-1); }
+    .infobox-title { font-size: .8rem; color: var(--text-secondary); margin-bottom: 2px; }
+    .infobox-value { font-weight: 700; font-size: 1.1rem; }
+
+    /* --- Mobile Nav --- */
+    .mobile-nav { position: fixed; bottom: 18px; left: 50%; transform: translateX(-50%); width: calc(100% - 36px); max-width: 400px; background: rgba(22, 27, 34, .7); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); border: 1px solid var(--glass-border); border-radius: 999px; display: flex; justify-content: space-around; padding: 8px; z-index: 99; }
+    .mobile-btn { background: none; border: none; color: var(--text-secondary); padding: 8px; border-radius: 999px; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; font-weight: 600; transition: all .3s ease; flex: 1; }
+    .mobile-btn svg { width: 22px; height: 22px; transition: color .3s; }
+    .mobile-btn.active { background: var(--accent-1); color: #010409; }
+    .mobile-btn.active svg { color: #010409; }
+    .mobile-btn .btn-text { display: none; }
+    .mobile-btn.active .btn-text { display: inline; }
+    
+    /* --- Painel de Configurações --- */
+    .settings-modal-backdrop { position: fixed; inset: 0; background: rgba(0,0,0,.7); backdrop-filter: blur(8px); z-index: 100; opacity: 0; pointer-events: none; transition: opacity .3s; }
+    .settings-modal-backdrop.is-open { opacity: 1; pointer-events: auto; }
+    .settings-modal { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -45%); background: #161b22; border: 1px solid var(--glass-border); border-radius: var(--radius-lg); width: 90%; max-width: 380px; padding: 24px; box-shadow: var(--card-shadow); opacity: 0; pointer-events: none; transition: opacity .3s, transform .3s; z-index: 101; /* Garante que o modal fique sobre o fundo */ }
+    html.light-theme .settings-modal { background: #f0f2f5; }
+    .settings-modal.is-open { opacity: 1; pointer-events: auto; transform: translate(-50%, -50%); }
+    .settings-modal h2 { margin: 0 0 20px; text-align: center; }
+    .setting-item { display: flex; justify-content: space-between; align-items: center; padding: 12px 0; border-bottom: 1px solid var(--glass-border); }
+    .setting-item:last-child { border-bottom: none; }
+    .setting-label { display: flex; flex-direction: column; }
+    .setting-label strong { color: var(--text-primary); }
+    .setting-label span { font-size: .85rem; color: var(--text-secondary); }
+    .switch { position: relative; display: inline-block; width: 44px; height: 24px; }
+    .switch input { opacity: 0; width: 0; height: 0; }
+    .slider { position: absolute; cursor: pointer; inset: 0; background-color: #333; border-radius: 34px; transition: .4s; }
+    .slider:before { position: absolute; content: ""; height: 18px; width: 18px; left: 3px; bottom: 3px; background-color: white; border-radius: 50%; transition: .4s; }
+    input:checked + .slider { background-color: var(--accent-1); }
+    input:checked + .slider:before { transform: translateX(20px); }
+    .settings-modal-close { position: absolute; top: 10px; right: 10px; background: none; border: none; color: var(--text-secondary); font-size: 1.5rem; cursor: pointer; }
+
+
+    @media (min-width: 768px) {
+      .mobile-nav { display: none; }
+      .tabs { display: flex; }
+      body { padding-bottom: 18px; }
+    }
     @media (max-width:768px){
       .grid.auto{grid-template-columns:1fr}
+      #tab-aulas .grid { grid-template-columns: 1fr; }
     }
   </style>
 </head>
 <body>
-  <div id="urgent-modal-backdrop" hidden></div>
-  <div id="urgent-modal-content" class="card" hidden></div>
-  
   <canvas id="stars"></canvas>
   <div class="notify" id="notify"></div>
 
   <div class="app" id="app">
     <header class="header">
       <h1>DS2A Hub</h1>
+      <nav class="tabs" role="tablist" aria-label="Navegação Principal">
+        <button class="tab nav-btn active" data-tab="aulas">Aulas</button>
+        <button class="tab nav-btn" data-tab="trabalhos">Trabalhos</button>
+        <button class="tab nav-btn" data-tab="materiais">Materiais</button>
+      </nav>
       <div style="display:flex;gap:10px;align-items:center">
-        <nav class="tabs" role="tablist" aria-label="Navegação Principal">
-          <button class="tab active" data-tab="aulas">Aulas</button>
-          <button class="tab" data-tab="trabalhos">Trabalhos</button>
-          <button class="tab" data-tab="materiais">Materiais</button>
-        </nav>
-        <button class="relax-toggle" id="relaxBtn" title="Modo Relax">🌙</button>
-        <button class="theme-toggle" id="themeBtn" title="Alternar tema">☀️</button>
+        <button class="settings-toggle" id="settingsBtn" title="Configurações">
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
+        </button>
       </div>
     </header>
 
@@ -169,6 +220,8 @@
       <span id="quote"></span>
     </div>
 
+    <div id="infobox-container" class="grid"></div>
+
     <section class="announcement card" id="announce"></section>
 
     <main>
@@ -176,8 +229,11 @@
       <section class="card active" id="tab-aulas" role="tabpanel">
         <div class="grid" style="grid-template-columns:1.1fr .9fr;align-items:start">
           <div>
-            <div class="searchbox" style="margin-bottom:10px">
-              <input id="searchCal" type="text" placeholder="Buscar evento/data (ex: Prova, 2025-09-04)" style="width:100%" />
+            <div class="search-wrapper">
+              <span class="search-icon">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+              </span>
+              <input id="searchCal" type="text" placeholder="Buscar evento ou data..." />
               <div class="results" id="results"></div>
             </div>
             <div class="calendar" id="calendar"></div>
@@ -239,21 +295,55 @@
       </section>
     </main>
   </div>
+  
+  <nav class="mobile-nav">
+      <button class="mobile-btn nav-btn active" data-tab="aulas" aria-label="Aulas">
+          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"></path><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"></path></svg>
+          <span class="btn-text">Aulas</span>
+      </button>
+      <button class="mobile-btn nav-btn" data-tab="trabalhos" aria-label="Trabalhos">
+          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"></path><rect x="8" y="2" width="8" height="4" rx="1" ry="1"></rect></svg>
+          <span class="btn-text">Trabalhos</span>
+      </button>
+      <button class="mobile-btn nav-btn" data-tab="materiais" aria-label="Materiais">
+          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"></path></svg>
+          <span class="btn-text">Materiais</span>
+      </button>
+  </nav>
+
+  <div class="settings-modal-backdrop" id="settingsBackdrop"></div>
+  <div class="settings-modal" id="settingsModal">
+      <button class="settings-modal-close" id="settingsCloseBtn">&times;</button>
+      <h2>Configurações</h2>
+      <div class="setting-item">
+          <div class="setting-label">
+              <strong>Modo Relax</strong>
+              <span>Música ambiente e fundo estrelado</span>
+          </div>
+          <label class="switch">
+              <input type="checkbox" id="relaxToggle">
+              <span class="slider"></span>
+          </label>
+      </div>
+      <div class="setting-item">
+          <div class="setting-label">
+              <strong>Tema Claro</strong>
+              <span>Alternar para uma interface mais clara</span>
+          </div>
+          <label class="switch">
+              <input type="checkbox" id="themeToggle">
+              <span class="slider"></span>
+          </label>
+      </div>
+  </div>
 
   <script>
   document.addEventListener('DOMContentLoaded', () => {
     // ===================== 1) DADOS =====================
     const appData = {
-      urgentAnnouncement: {
-        id: 'form-aviso-importante-setembro-2025',
-        title: '⚠️ Aviso Urgente: Preenchimento Obrigatório',
-        message: 'Por favor, preencha o formulário o mais rápido possível. É de extrema importância para a coordenação.',
-        link: 'https://docs.google.com/forms/d/e/1FAIpQLSeWfMI5nm5NR7q0rMgmfeJU_sm7mf8KPriehm3FMfohr8PHpQ/viewform?usp=sharing&ouid=102826610762151983284',
-        linkLabel: 'Acessar Formulário'
-      },
       bimesterStartDate: '2025-08-01',
       bimesterEndDate:   '2025-09-30',
-      announcement: { id:'anuncio-setembro', title:'Foco total em Setembro!', message:'Trabalho de Inglês concluído com sucesso! Prepare-se para a entrega de Educação Física na próxima semana. Vamos fechar o bimestre com chave de ouro!' },
+      announcement: { id:'anuncio-setembro', title:'Foco total em Setembro!', message:'Todos os trabalhos principais foram entregues! Agora é foco total na reta final e estudos para as próximas provas.' },
       lessons: {
         1:{ day:'Segunda-feira', subjects:[
           { name:'Geografia', color:'geografia' }, { name:'Química', color:'quimica' }, { name:'Inglês', color:'ingles' }, { name:'Física', color:'fisica' }, { name:'Carreira', count:3, color:'carreira', room:'Lab 2' }
@@ -272,8 +362,8 @@
         ]}
       },
       assignments: [
-        { title:'Educação Física', status:'pending', date:'2025-09-04' },
-        { title:'Carreira', status:'pending', date:'2025-09-01' },
+        { title:'Educação Física', status:'done', date:'2025-09-04' },
+        { title:'Carreira', status:'done', date:'2025-09-01' },
         { title:'Inglês', status:'done',    date:'2025-08-28' },
         { title:'Física', status:'done' }
       ],
@@ -311,22 +401,25 @@
 
     // ===================== 2) ESTADO & ELEMENTOS =====================
     const el = {
-      tabs: document.querySelectorAll('.tab'),
+      navBtns: document.querySelectorAll('.nav-btn'),
       panels: {
         aulas: document.getElementById('tab-aulas'),
         trabalhos: document.getElementById('tab-trabalhos'),
         materiais: document.getElementById('tab-materiais'),
       },
-      urgentModalBackdrop: document.getElementById('urgent-modal-backdrop'),
-      urgentModalContent: document.getElementById('urgent-modal-content'),
       stars: document.getElementById('stars'),
-      relaxBtn: document.getElementById('relaxBtn'),
-      themeBtn: document.getElementById('themeBtn'),
+      settingsBtn: document.getElementById('settingsBtn'),
+      settingsModal: document.getElementById('settingsModal'),
+      settingsBackdrop: document.getElementById('settingsBackdrop'),
+      settingsCloseBtn: document.getElementById('settingsCloseBtn'),
+      relaxToggle: document.getElementById('relaxToggle'),
+      themeToggle: document.getElementById('themeToggle'),
       announce: document.getElementById('announce'),
       notify: document.getElementById('notify'),
       quote: document.getElementById('quote'),
       bimBar: document.getElementById('bimBar'),
       bimLabel: document.getElementById('bimLabel'),
+      infoboxContainer: document.getElementById('infobox-container'),
       // aulas
       calendar: document.getElementById('calendar'),
       searchCal: document.getElementById('searchCal'),
@@ -364,7 +457,6 @@
     const pad = (n) => n.toString().padStart(2,'0');
     const toISO = (d) => `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`;
 
-    // Semana/cores
     function getWeekNumber(d){
       d = new Date(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate()));
       d.setUTCDate(d.getUTCDate() + 4 - (d.getUTCDay()||7));
@@ -378,37 +470,6 @@
       document.documentElement.style.setProperty('--accent-2', p.accent2);
     }
 
-    // Tema dinâmico por horário
-    function autoTheme(){
-      const h = new Date().getHours();
-      if(h >= 6 && h < 18){ // manhã/tarde
-        document.body.classList.remove('neon');
-        document.body.style.filter = 'none';
-        el.themeBtn.textContent = '🌙';
-      } else if (h >= 18 && h < 23){ // noite
-        document.body.classList.remove('neon');
-        document.body.style.filter = 'brightness(0.95)';
-        el.themeBtn.textContent = '☀️';
-      } else { // madrugada: neon gamer
-        document.body.classList.add('neon');
-        document.body.style.filter = 'none';
-        el.themeBtn.textContent = '⚡';
-      }
-    }
-
-    // alternância manual claro/escuro/neon (ciclo)
-    el.themeBtn.addEventListener('click', () => {
-      if(document.body.classList.contains('neon')){
-        document.body.classList.remove('neon');
-        document.body.style.filter = 'none';
-      } else if (document.body.style.filter){
-        document.body.style.filter = '';
-      } else {
-        document.body.style.filter = 'brightness(0.95)';
-      }
-    });
-
-    // Estrelas (modo relax)
     function drawStars(){
       const c = el.stars, ctx = c.getContext('2d');
       const DPR = Math.max(1, window.devicePixelRatio||1);
@@ -424,7 +485,6 @@
       })();
     }
 
-    // Notificações + som via WebAudio
     function notify(msg){
       const n = document.createElement('div'); n.className='note'; n.textContent = msg; el.notify.appendChild(n);
       try {
@@ -456,28 +516,7 @@
       el.bimBar.parentElement.title = `Progresso do bimestre. Faltam ${daysRemaining} dias.`;
     }
 
-    // ===================== 5) AVISOS (MODAL + REGULAR) =====================
-    function renderUrgentAnnouncement() {
-      const ua = appData.urgentAnnouncement;
-      if (!ua) return;
-      const storageKey = 'dismissed-' + ua.id;
-      if (localStorage.getItem(storageKey)) return;
-
-      el.urgentModalContent.innerHTML = `
-        <h2>${ua.title}</h2>
-        <p>${ua.message}</p>
-        <a href="${ua.link}" target="_blank" rel="noopener noreferrer" class="btn btn-danger">${ua.linkLabel}</a>
-        <button class="btn btn-close-modal">Entendi, fechar aviso</button>
-      `;
-      el.urgentModalBackdrop.hidden = false;
-      el.urgentModalContent.hidden = false;
-      el.urgentModalContent.querySelector('.btn-close-modal').onclick = () => {
-        localStorage.setItem(storageKey, 'true');
-        el.urgentModalBackdrop.hidden = true;
-        el.urgentModalContent.hidden = true;
-      };
-    }
-    
+    // ===================== 5) AVISOS E INFOBOXES =====================
     function renderAnnouncement(){
       const a = appData.announcement; const container = el.announce;
       if (!a) { container.hidden = true; return; }
@@ -510,6 +549,34 @@
           { transform:`translate(${x}px, ${y}px) scale(0)`, opacity:0 }
         ], { duration:600, easing:'ease-out' }).onfinish = ()=> p.remove();
       }
+    }
+    
+    function renderInfoBoxes() {
+        const todayLessons = appData.lessons[state.today.getDay()]?.subjects.length || 0;
+        const pendingAssignments = appData.assignments.filter(a => a.status === 'pending' && a.date);
+        const nextAssignment = pendingAssignments.sort((a,b) => new Date(a.date) - new Date(b.date))[0];
+        
+        let nextAssignmentText = "Nenhuma";
+        if (nextAssignment) {
+            const diff = Math.ceil((new Date(nextAssignment.date+'T23:59:59') - new Date())/(1000*60*60*24));
+            nextAssignmentText = `${nextAssignment.title} (${diff}d)`;
+        }
+
+        const boxes = [
+            { icon: '📚', title: 'Aulas Hoje', value: todayLessons },
+            { icon: '🎯', title: 'Próxima Entrega', value: nextAssignmentText },
+            { icon: '⚠️', title: 'Pendentes', value: pendingAssignments.length }
+        ];
+
+        el.infoboxContainer.innerHTML = boxes.map(b => `
+            <div class="infobox">
+                <span class="infobox-icon">${b.icon}</span>
+                <div>
+                    <div class="infobox-title">${b.title}</div>
+                    <div class="infobox-value">${b.value}</div>
+                </div>
+            </div>
+        `).join('');
     }
 
     // ===================== 6) CALENDÁRIO =====================
@@ -552,7 +619,6 @@
       renderLessons(date);
     }
 
-    // Busca calendário
     const nowForSearch = new Date();
     nowForSearch.setHours(0,0,0,0);
     const allEventsAndAssignments = [
@@ -593,7 +659,13 @@
         const list = ddata.subjects.filter(s=>!filter || s.name===filter);
         if(!list.length) return;
         list.forEach(s=>{ if(s.count && s.count>1) alertas.push(`${s.count} aulas seguidas de ${s.name}`); totalAulas += (s.count||1); });
-        const title = document.createElement('div'); title.style.fontWeight='800'; title.style.margin='4px 2px'; title.textContent = ddata.day; el.lessons.appendChild(title);
+        if (list.length > 0 && view === 'semana') {
+          const title = document.createElement('div'); 
+          title.style.fontWeight='800'; 
+          title.style.margin='8px 2px 4px';
+          title.textContent = ddata.day; 
+          el.lessons.appendChild(title);
+        }
         list.forEach(subj => el.lessons.appendChild(makeLessonCard(ddata.day, subj, isTodayView ? date : null)));
       });
 
@@ -709,36 +781,64 @@
       const a = document.createElement('a'); a.href=url; a.download='curriculo.txt'; a.click(); URL.revokeObjectURL(url);
     };
 
-    // ===================== 10) TABS + RELAX =====================
-    el.tabs.forEach(t => t.addEventListener('click', () => {
-      el.tabs.forEach(x => x.classList.remove('active'));
-      t.classList.add('active');
-      const targetId = 'tab-' + t.dataset.tab;
-      document.querySelector('section[role="tabpanel"].active')?.classList.remove('active');
-      document.getElementById(targetId)?.classList.add('active');
+    // ===================== 10) TABS E CONFIGURAÇÕES =====================
+    el.navBtns.forEach(btn => btn.addEventListener('click', () => {
+        const tabName = btn.dataset.tab;
+        el.navBtns.forEach(b => b.classList.toggle('active', b.dataset.tab === tabName));
+        Object.values(el.panels).forEach(p => p.classList.remove('active'));
+        el.panels[tabName]?.classList.add('active');
     }));
 
-    el.relaxBtn.onclick = ()=>{
-      document.body.classList.toggle('relax-on');
-      el.app.classList.toggle('relax-on');
-      if(document.body.classList.contains('relax-on')) notify('Modo Relax ativado'); else notify('Modo Relax desativado');
-    };
+    function setupSettings() {
+        const openSettings = () => {
+            el.settingsModal.classList.add('is-open');
+            el.settingsBackdrop.classList.add('is-open');
+        };
+        const closeSettings = () => {
+            el.settingsModal.classList.remove('is-open');
+            el.settingsBackdrop.classList.remove('is-open');
+        };
+        el.settingsBtn.onclick = openSettings;
+        el.settingsCloseBtn.onclick = closeSettings;
+        el.settingsBackdrop.onclick = closeSettings;
+
+        // Relax Mode
+        const isRelax = localStorage.getItem('relaxMode') === 'true';
+        document.body.classList.toggle('relax-on', isRelax);
+        el.relaxToggle.checked = isRelax;
+        el.relaxToggle.onchange = (e) => {
+            const active = e.target.checked;
+            document.body.classList.toggle('relax-on', active);
+            localStorage.setItem('relaxMode', active);
+            notify(`Modo Relax ${active ? 'ativado' : 'desativado'}`);
+        };
+
+        // Theme
+        const isLight = localStorage.getItem('theme') === 'light';
+        document.documentElement.classList.toggle('light-theme', isLight);
+        el.themeToggle.checked = isLight;
+        el.themeToggle.onchange = (e) => {
+            const active = e.target.checked;
+            document.documentElement.classList.toggle('light-theme', active);
+            localStorage.setItem('theme', active ? 'light' : 'dark');
+            notify(`Tema ${active ? 'claro' : 'escuro'} aplicado`);
+        };
+    }
 
     // ===================== 11) INIT =====================
     applyWeeklyPalette();
-    autoTheme();
     renderQuote();
     renderBimester();
-    renderUrgentAnnouncement();
     renderAnnouncement();
+    renderInfoBoxes();
     renderCalendar(state.month, state.year);
     renderDay(state.selected);
     initSubjectFilter();
     renderAssignments();
     renderMaterials();
     drawStars();
+    setupSettings();
 
-    // alertas iniciais de prazo curto
     (function deadlineAlerts(){
       const now = new Date(); appData.assignments.filter(a=>a.status==='pending' && a.date).forEach(a=>{
         const diff = Math.ceil((new Date(a.date+'T23:59:59')-now)/(1000*60*60*24));
@@ -746,13 +846,10 @@
       });
     })();
 
-    // Recalcular barra do bimestre diariamente
     setInterval(renderBimester, 60*60*1000);
-    // Ajustar tema de hora em hora
-    setInterval(autoTheme, 60*60*1000);
-    // Responsivo estrelas
     window.addEventListener('resize', drawStars);
   });
   </script>
 </body>
 </html>
+
